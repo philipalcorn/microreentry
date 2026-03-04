@@ -1,0 +1,65 @@
+from muscles import Muscle
+from nodes import Node
+import time
+
+debugging = False
+
+
+def update_everything(t, nodes, muscles):
+    print(f"Timesetp {t}")
+    if debugging:
+        for m in muscles:
+            m.print_stats()
+
+    for m in muscles:
+        m.update(nodes, muscles)
+    #time.sleep(0.1)
+    t += 1
+    return t
+
+def main():
+    # creating a list of 4 muscles
+    muscles = [] 
+    for i in range(4):
+        m = Muscle(i)
+        muscles.append(m)
+
+    #creating 4 nodes
+    nodes = [] 
+    for i in range(4):
+        n = Node(i)
+        nodes.append(n)
+
+    muscles[0].connect_node(0)
+    muscles[0].connect_node(1)
+
+    muscles[1].connect_node(1)
+    muscles[1].connect_node(3)
+
+    muscles[2].connect_node(2)
+    muscles[2].connect_node(3)
+
+    muscles[3].connect_node(0)
+    muscles[3].connect_node(2)
+
+    nodes[0].connect_muscle(0)
+    nodes[0].connect_muscle(3)
+    
+    nodes[1].connect_muscle(0)
+    nodes[1].connect_muscle(1)
+
+    nodes[2].connect_muscle(3)
+    nodes[2].connect_muscle(2)
+
+    nodes[3].connect_muscle(1)
+    nodes[3].connect_muscle(2)
+
+
+    
+    t = 0
+    nodes[0].fire(muscles)
+    while t < 50:
+        t = update_everything(t, nodes, muscles)
+
+if __name__ == "__main__":
+    main()
