@@ -5,19 +5,17 @@ import time
 debugging = False
 
 
-def update_everything(t, nodes, muscles, is_micro):
+def update_everything(t, nodes, muscles):
+    if debugging: print(f"Timesetp {t}")
     if debugging:
         for m in muscles:
             m.print_stats()
-    is_micro = False
+
     for m in muscles:
-        if(m.update(nodes, muscles)):
-            print(f"Timestep:  {t}\n")
-        if m.has_fired > 1: # ie, re entry of some sort
-            is_micro=True
+        m.update(nodes, muscles)
     #time.sleep(0.1)
     t += 1
-    return t, is_micro
+    return t
 
 def main():
     # creating a list of 4 muscles
@@ -60,15 +58,17 @@ def main():
     
     t = 0
     nodes[0].fire(muscles)
-    print(f"Timestep:  {t}\n")
 
     micro=False
-    while not micro:
-        t, micro = update_everything(t, nodes, muscles, micro)
+    while True:
+        for m in muscles:
+            if m.has_fired > 1: # ie, re entry of some sort
+                micro=True
+                continue
+            
+        t = update_everything(t, nodes, muscles)
+        print(t)
         time.sleep(.1)
-        #micro = False 
-    
-    print("Micro detected")
 
 if __name__ == "__main__":
     main()

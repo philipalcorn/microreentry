@@ -3,6 +3,7 @@ class Node:
         # array of ids of connected muscles, muscles will be in external array
         self.id = id 
         self.connected_muscle_ids = []
+        #self.has_fired=0
 
 
     # check all the external muscles, if there is an in the external muscles
@@ -10,11 +11,16 @@ class Node:
     # fire that muscle (the muscle firing checks internaly if its in
     # refractory or not)
     def fire(self, external_muscles):
+        #if self.has_fired > 1: print("Micro detected")
+        activated = False
         for m in external_muscles: # loop through the muscles
             for cid in self.connected_muscle_ids: # loop through the connected muscle
                 if (m.id == cid): # if muscle id matches a connected muscle id 
-                    m.activate(self.id) # avtivate the muscle with the firing node 
-        return
+                    activated = m.activate(self.id) # avtivate the muscle with the firing node 
+                        #self.has_fired = self.has_fired+1
+                        # return True if a muscle activated
+        return activated
+                        
 
 
     def connect_muscle(self, id):
