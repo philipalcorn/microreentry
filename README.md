@@ -1,0 +1,1 @@
+A WIP Simulator for re-entry circuits that will be used in conjunction with a simulation of the left atrium (https://github.com/TSUParticleModelingGroup/New-Left-Atrium-Model/) to explore topological causes of cardiac arrhythmia.
