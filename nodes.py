@@ -14,14 +14,18 @@ class Node:
     def fire(self, external_muscles):
         self.has_fired += 1
         activated = False
+        micro_triggers = []
 
         for m in external_muscles:
             for cid in self.connected_muscle_ids:
                 if m.id == cid:
+                    # activate muscle in this step, and detect if it has now fired twice
                     if m.activate(self.id):
                         activated = True
+                        if m.has_fired == 2:
+                            micro_triggers.append(self.id)
 
-        return activated
+        return activated, micro_triggers
 
     def connect_muscle(self, id):
         self.connected_muscle_ids.append(id)

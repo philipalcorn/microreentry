@@ -2,191 +2,63 @@ from muscles import Muscle
 from nodes import Node
 import time
 import sys
+from drawing import *
 
-RESET = "\033[0m"
 
-# Muscle colors
-MUSCLE_READY = "\033[91m"        # red
-MUSCLE_CONTRACTING = "\033[93m"  # yellow
-MUSCLE_REFRACTORY = "\033[95m"   # pink
+#sim_time = 0.5         # Slow
+sim_time = 0.05         # Fast    
+heartbeat_time = 600    # How often the sim attempts to fire the firing node
+graphics = True         # Toggle whether or not to draw stuff 
+#graphics = False       # Toggle whether or not to draw stuff
 
-# Node colors
-NODE_IDLE = "\033[96m"           # cyan
-NODE_FIRED = "\033[92m"          # green
+# defaults in ms converted to timesteps
+default_ct = 6 # Default Conduction time
+default_rp = 350 # Default Refractory period
 
-# Bars follow muscle color
-BAR_READY = MUSCLE_READY
-BAR_CONTRACTING = MUSCLE_CONTRACTING
-BAR_REFRACTORY = MUSCLE_REFRACTORY
+# Multipliers for blocked muscles
+slow_ct = 4
+slow_rp = 0.1
+#slow_rp = 1
 
+# The IDs of the muscles to block
+blocked_ids = [51,  63, 64, 199, 211, 212 ]
+#blocked_ids = []
+
+log = False
 debugging = False
 
 firing_node = 5
-l = 12
-
-max_log_lines = 25
-
-
-blocked_ids = [52, 53, 63, 64, 65, 200, 212, 213, 225, 226]
-
-# defaults in ms converted to timesteps
-default_ct = 6
-default_contraction = 150
-default_rp = 350
-
-# modifiers for selected muscles
-slow_ct = 3.33
-slow_rp = 0.04
-
-sim_time = 0.01
-log = False
-def move_cursor_home():
-    sys.stdout.write("\033[H")
-    sys.stdout.flush()
+#firing_node = 31
+#firing_node = 162
 
 
-def hide_cursor():
-    sys.stdout.write("\033[?25l")
-    sys.stdout.flush()
+
+l = 12 # Size of sheet
+
+max_log_lines = 25 # For the logging stuff 
 
 
-def show_cursor():
-    sys.stdout.write("\033[?25h")
-    sys.stdout.flush()
 
 
-def clear_terminal():
-    sys.stdout.write("\033[2J\033[H")
-    sys.stdout.flush()
 
 
-def reserve_screen(lines):
-    print("\n" * lines, end="")
 
 
-def get_node_id(r, c, l):
-    return r * (l + 1) + c
+def print_sim_stats():
+    blocked_rp = slow_rp * default_rp
+    blocked_ct = slow_ct * default_ct
+    if blocked_rp <= blocked_ct:
+        blocked_rp = blocked_ct + 1
 
-
-def build_sheet(l):
-    clear_terminal()
-
-    num_nodes = (l + 1) * (l + 1)
-    num_muscles = 2 * l * (l + 1)
-
-    nodes = [Node(i) for i in range(num_nodes)]
-    muscles = [Muscle(i) for i in range(num_muscles)]
-
-    mid = 0
-
-    # Horizontal muscles
-    for r in range(l + 1):
-        for c in range(l):
-            n1 = get_node_id(r, c, l)
-            n2 = get_node_id(r, c + 1, l)
-
-            muscles[mid].connect_node(n1)
-            muscles[mid].connect_node(n2)
-
-            nodes[n1].connect_muscle(mid)
-            nodes[n2].connect_muscle(mid)
-
-            mid += 1
-
-    # Vertical muscles
-    for r in range(l):
-        for c in range(l + 1):
-            n1 = get_node_id(r, c, l)
-            n2 = get_node_id(r + 1, c, l)
-
-            muscles[mid].connect_node(n1)
-            muscles[mid].connect_node(n2)
-
-            nodes[n1].connect_muscle(mid)
-            nodes[n2].connect_muscle(mid)
-
-            mid += 1
-
-    return nodes, muscles
-
-
-def muscle_color(m):
-    if m.is_contracting():
-        return MUSCLE_CONTRACTING
-    if m.is_refractory():
-        return MUSCLE_REFRACTORY
-    return MUSCLE_READY
-
-
-def bar_color(m):
-    if m.is_contracting():
-        return BAR_CONTRACTING
-    if m.is_refractory():
-        return BAR_REFRACTORY
-    return BAR_READY
-
-
-def node_color(node):
-    return NODE_FIRED if getattr(node, "has_fired", 0) > 0 else NODE_IDLE
-
-
-def print_sheet(l, nodes, muscles):
-    n = l + 1
-    total_muscles = 2 * l * (l + 1)
-    horiz_count = l * (l + 1)
-
-    id_w = max(2, len(str(total_muscles - 1)))
-    node_w = max(4, len(str((l + 1) * (l + 1) - 1)) + 1)
-    hmuscle_w = id_w + 6
-
-    def node_str(node):
-        color = node_color(node)
-        return f"{color}{node.id:>{node_w}}{RESET}"
-
-    def hmuscle_str(muscle):
-        color = muscle_color(muscle)
-        s = f"---{muscle.id:0{id_w}d}---"
-        return f"{color}{s:<{hmuscle_w}}{RESET}"
-
-    def centered(text, width, color):
-        return f"{color}{text:^{width}}{RESET}"
-
-    for r in range(n):
-        line = ""
-        for c in range(n):
-            node_idx = r * n + c
-            line += node_str(nodes[node_idx])
-
-            if c < n - 1:
-                mid = r * l + c
-                line += " " + hmuscle_str(muscles[mid]) + " "
-        print(line)
-
-        if r < n - 1:
-            line = ""
-            for c in range(n):
-                mid = horiz_count + r * n + c
-                line += centered("|", node_w, bar_color(muscles[mid]))
-                if c < n - 1:
-                    line += " " + " " * hmuscle_w + " "
-            print(line)
-
-            line = ""
-            for c in range(n):
-                mid = horiz_count + r * n + c
-                m = muscles[mid]
-                line += centered(f"{m.id:0{id_w}d}", node_w, muscle_color(m))
-                if c < n - 1:
-                    line += " " + " " * hmuscle_w + " "
-            print(line)
-
-            line = ""
-            for c in range(n):
-                mid = horiz_count + r * n + c
-                line += centered("|", node_w, bar_color(muscles[mid]))
-                if c < n - 1:
-                    line += " " + " " * hmuscle_w + " "
-            print(line)
+    print("Timing:")
+    print(f" - Default RP: {default_rp}")
+    print(f" - Default CT: {default_ct}")
+    print(f" - Blocked RP modifier: {slow_rp}")
+    print(f" - Blocked CT modifier: {slow_ct}")
+    print(f" - Effective blocked RP: {blocked_rp}")
+    print(f" - Effective blocked CT: {blocked_ct}")
+    if (blocked_rp <= blocked_ct): 
+        print("(RP>CT constraint was applied to the RP modifier to ensure it is greater than CT)")
 
 
 def log_event(event_log, t, msg):
@@ -198,24 +70,59 @@ def log_event(event_log, t, msg):
         event_log.pop(0)
 
 
-def update_everything(t, nodes, muscles, event_log):
+def update_everything(t, nodes, muscles, event_log, micro_origin=None):
     micro = False
 
     if debugging:
         for m in muscles:
             m.print_stats()
 
+    fire_queue = []
+
+    # First pass: update muscles and collect node activations
     for m in muscles:
-        if m.update(nodes, muscles):
+        fired_nodes = m.update(nodes)
+        if fired_nodes:
+            fire_queue.extend(fired_nodes)
             log_event(event_log, t, f"Timestep {t}: propagation event")
 
         if m.has_fired > 1:
             micro = True
 
-    return t + 1, micro
+    # Second pass: apply node firing simultaneously
+    for nid in fire_queue:
+        if 0 <= nid < len(nodes):
+            activated, micro_triggers = nodes[nid].fire(muscles) # Fire the node and check if it was activated, and if any micro triggers were detected
+            if activated:
+                log_event(event_log, t, f"Timestep {t}: node {nid} fired")
+
+            if micro_triggers and micro_origin is None: # If we detect micro reentry and haven't already set an origin, set it to the first trigger
+                micro_origin = micro_triggers[0] # Set the micro reentry origin to the first node that triggered a muscle that fired more than once
+
+    return t + 1, micro, micro_origin
 
 
-def main():
+def main(argv=None):
+    global graphics, graphics, sim_time
+
+    if argv is None:
+        argv = sys.argv[1:]
+
+    for arg in argv:
+        if "=" not in arg:
+            print(f"Unrecognized argument: {arg}")
+        key, value = arg.split("=", 1)
+        key = key.strip().lower()
+        value = value.strip()
+
+        if key == "graphics":
+            graphics = value.lower() in ("1", "true", "yes", "y", "on")
+        elif key == "sim_time":
+            try:
+                sim_time = float(value)
+            except ValueError:
+                pass
+
     event_log = []
 
     nodes, muscles = build_sheet(l)
@@ -224,7 +131,6 @@ def main():
         muscles,
         rp=default_rp,
         ct=default_ct,
-        contraction=default_contraction,
     )
 
     Muscle.set_multiplier_for_ids(
@@ -234,46 +140,64 @@ def main():
         ct=slow_ct,
     )
 
-    # sheet lines + title/log area
-    frame_lines = (l + 1) + 3 * l + 6 + max_log_lines
-
-    reserve_screen(frame_lines)
     hide_cursor()
 
-    try:
-        t = 0
-        nodes[firing_node].fire(muscles)
+    # main loop
+    timestep = 0
+    nodes[firing_node].fire(muscles)
 
-        micro = False
-        while not micro:
-            move_cursor_home()
+    micro = False
+    micro_node_id = None
 
-            print(f"Timestep: {t}")
+    while not micro:
+    #while True:
+        clear_terminal()
+        
+        # go to line 1 to write header and sheet from fixed position
+        set_cursor(1, 1)
+        print_info()
+        print_sim_stats()
+        print(f"Timestep: {timestep}")
+        if (graphics): 
             print_sheet(l, nodes, muscles)
-            if log:
-                print()
-                print("Event Log:")
-                for msg in event_log:
-                    print(msg)
-            for _ in range(max_log_lines - len(event_log)):
-                print()
+        # fixed event log area starting directly after sheet
+        log_row_start = (l + 1) * 4 + 4
+        if log:
+            set_cursor(log_row_start, 1)
+            print("Event Log:")
+            for i, msg in enumerate(event_log[-max_log_lines:]):
+                set_cursor(log_row_start + 1 + i, 1)
+                print(msg)
 
-            t, micro = update_everything(t, nodes, muscles, event_log)
+        timestep, micro, micro_node_id = update_everything(timestep, nodes, muscles, event_log, micro_node_id)
+        if (graphics):
             time.sleep(sim_time)
 
-        move_cursor_home()
-        print(f"Timestep: {t}")
-        print_sheet(l, nodes, muscles)
-        if log:
-            print()
-            print("Event Log:")
-            for msg in event_log:
-                print(msg)
-        #print("Micro detected")
+        if (timestep % heartbeat_time == 0):
+            nodes[firing_node].fire(muscles)
+    
+    # Micro detected here
 
-    finally:
-        show_cursor()
+    # Clear Screen
+    move_cursor_home()
+    clear_terminal()
+    
+
+    print(f"Timestep: {timestep}")
+    print("Micro detected")
+    if micro_node_id is not None:
+        print(f"Micro started by node {micro_node_id}")
+    if(graphics):
+        print_sheet(l, nodes, muscles)
+    if log:
+        print()
+        print("Event Log:")
+        for msg in event_log:
+            print(msg)
+
+    show_cursor()
 
 
 if __name__ == "__main__":
     main()
+

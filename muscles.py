@@ -4,12 +4,10 @@ class Muscle:
         self.activated_from_id = 0
 
         self.default_refractory_period = 300
-        self.default_conduction_time = 250
-        self.default_contraction_time = 150
+        self.default_conduction_time = 10 
 
         self.refractory_period = self.default_refractory_period
         self.conduction_time = self.default_conduction_time
-        self.contraction_time = self.default_contraction_time
 
         self.connected_node_ids = []
 
@@ -19,47 +17,43 @@ class Muscle:
 
         self.has_fired = 0
 
-    def set_individual_defaults(self, rp=None, ct=None, contraction=None):
+    def set_individual_defaults(self, rp=None, ct=None):
         if rp is not None:
             self.default_refractory_period = rp
             self.refractory_period = rp
         if ct is not None:
             self.default_conduction_time = ct
             self.conduction_time = ct
-        if contraction is not None:
-            self.default_contraction_time = contraction
-            self.contraction_time = contraction
 
     @classmethod
-    def set_defaults(cls, muscles, rp=None, ct=None, contraction=None):
+    def set_defaults(cls, muscles, rp=None, ct=None):
         for m in muscles:
-            m.set_individual_defaults(rp, ct, contraction)
+            m.set_individual_defaults(rp, ct)
 
-    def set_multiplier(self, rp=None, ct=None, contraction=None):
+    def set_multiplier(self, rp=None, ct=None):
         if rp is not None:
             self.refractory_period = rp * self.default_refractory_period
         if ct is not None:
             self.conduction_time = ct * self.default_conduction_time
-        if contraction is not None:
-            self.contraction_time = contraction * self.default_contraction_time
+
+        # Enforce a valid physiology rule: refractory period must exceed conduction time.
+        # This avoids short RP that terminates the activation before conduction happens.
+        if self.refractory_period <= self.conduction_time:
+            self.refractory_period = self.conduction_time + 1
+
 
     @classmethod
-    def set_multiplier_for_ids(cls, muscles, ids, rp=None, ct=None, contraction=None):
+    def set_multiplier_for_ids(cls, muscles, ids, rp=None, ct=None):
         for mid in ids:
             if 0 <= mid < len(muscles):
-                muscles[mid].set_multiplier(rp, ct, contraction)
+                muscles[mid].set_multiplier(rp, ct)
 
     def is_conducting(self):
         return self.active and self.timer < self.conduction_time
 
-    def is_contracting(self):
-        return self.active and self.timer < self.contraction_time
-
     def is_refractory(self):
         return (
-            self.active and
-            self.contraction_time <= self.timer <
-            self.contraction_time + self.refractory_period
+            self.active and self.timer < self.refractory_period
         )
 
     def is_ready(self):
@@ -70,36 +64,32 @@ class Muscle:
             f"muscleid: {self.id}\n"
             f"timer: {self.timer}\n"
             f"ct: {self.conduction_time}\n"
-            f"contract: {self.contraction_time}\n"
             f"rp: {self.refractory_period}\n"
             f"conducting: {self.is_conducting()}\n"
-            f"contracting: {self.is_contracting()}\n"
             f"refractory: {self.is_refractory()}\n"
             f"ready: {self.is_ready()}"
         )
-
-    def update(self, ext_nodes, ext_muscles):
-        fired = False
+    #TODO: Fix the logic here as it has leftover garbage from implementing conduciton//contraction
+    # Need to fix timing of resetting to inactive.
+    def update(self, ext_nodes):
+        fired_node_ids = []
 
         if self.active:
             self.timer += 1
 
-            # invisible electrical propagation
+            # invisible electrical propagation at conduction point
             if self.timer == self.conduction_time:
                 for nid in self.connected_node_ids:
                     if nid != self.activated_from_id:
-                        for ext_node in ext_nodes:
-                            if ext_node.id == nid:
-                                if ext_node.fire(ext_muscles):
-                                    fired = True
+                        fired_node_ids.append(nid)
 
-            # reset after contraction + refractory
-            total_duration = self.contraction_time + self.refractory_period
-            if self.timer >= total_duration:
+            # reset after conduction + refractory
+            #total_duration = self.conduction_time + self.refractory_period
+            if self.timer >= self.refractory_period:
                 self.timer = 0
                 self.active = False
 
-        return fired
+        return fired_node_ids
 
     def activate(self, node_id):
         if len(self.connected_node_ids) < 2:
