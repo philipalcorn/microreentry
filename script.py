@@ -117,15 +117,16 @@ def main(argv=None):
     for arg in argv:
         if "=" not in arg:
             print(f"Unrecognized argument: {arg}")
+            exit()
         key, value = arg.split("=", 1)
         key = key.strip().lower()
         value = value.strip()
 
-        if key == "graphics":
-            graphics = value.lower() in ("1", "true", "yes", "y", "on")
-        if key == "infinite":
-            infinite = value.lower() in ("1", "true", "yes", "y", "on")
-        elif key == "sim_time":
+        if key == "graphics" or key == "g":
+            graphics = value.lower() in ("1", "true", "yes", "y", "t", "on")
+        if key == "infinite" or key =="s":
+            infinite = value.lower() in ("1", "true", "yes", "y", "t", "on")
+        elif key == "sim_time" or key == "t":
             try:
                 sim_time = float(value)
             except ValueError:
@@ -168,6 +169,8 @@ def main(argv=None):
         set_cursor(1, 1)
         print_info()
         print_sim_stats()
+        if (micro):
+            print("MIRCO DETECTED")
         print(f"Timestep: {timestep}")
         if (graphics): 
             print_sheet(l, nodes, muscles)
