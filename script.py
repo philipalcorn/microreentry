@@ -10,6 +10,7 @@ from drawing import *
 sim_time = 0.05         # Fast    
 graphics = True         # Toggle whether or not to draw stuff 
 #graphics = False       # Toggle whether or not to draw stuff
+infinite = True         # Toggle whether or not the sim stops on reentry 
 
 perf_check = True
 heartbeat_time = 600    # How often the sim attempts to fire the firing node
@@ -108,7 +109,7 @@ def update_everything(t, nodes, muscles, event_log, micro_origin=None):
 
 
 def main(argv=None):
-    global graphics, graphics, sim_time
+    global graphics, graphics, sim_time, infinite
 
     if argv is None:
         argv = sys.argv[1:]
@@ -122,6 +123,8 @@ def main(argv=None):
 
         if key == "graphics":
             graphics = value.lower() in ("1", "true", "yes", "y", "on")
+        if key == "infinite":
+            infinite = value.lower() in ("1", "true", "yes", "y", "on")
         elif key == "sim_time":
             try:
                 sim_time = float(value)
@@ -157,7 +160,7 @@ def main(argv=None):
     if perf_check:
         start = time.perf_counter() 
 
-    while not micro:
+    while ((not micro) or infinite):
     #while True:
         clear_terminal()
         
