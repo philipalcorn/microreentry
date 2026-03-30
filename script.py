@@ -5,11 +5,14 @@ import sys
 from drawing import *
 
 
+# These settings can be changed by command line args 
 #sim_time = 0.5         # Slow
 sim_time = 0.05         # Fast    
-heartbeat_time = 600    # How often the sim attempts to fire the firing node
 graphics = True         # Toggle whether or not to draw stuff 
 #graphics = False       # Toggle whether or not to draw stuff
+
+perf_check = True
+heartbeat_time = 600    # How often the sim attempts to fire the firing node
 
 # defaults in ms converted to timesteps
 default_ct = 6 # Default Conduction time
@@ -79,9 +82,11 @@ def update_everything(t, nodes, muscles, event_log, micro_origin=None):
 
     fire_queue = []
 
+    
     # First pass: update muscles and collect node activations
     for m in muscles:
         fired_nodes = m.update(nodes)
+
         if fired_nodes:
             fire_queue.extend(fired_nodes)
             log_event(event_log, t, f"Timestep {t}: propagation event")
@@ -146,8 +151,11 @@ def main(argv=None):
     timestep = 0
     nodes[firing_node].fire(muscles)
 
+
     micro = False
     micro_node_id = None
+    if perf_check:
+        start = time.perf_counter() 
 
     while not micro:
     #while True:
@@ -177,16 +185,20 @@ def main(argv=None):
             nodes[firing_node].fire(muscles)
     
     # Micro detected here
-
+    
     # Clear Screen
     move_cursor_home()
     clear_terminal()
-    
+    if (perf_check):
+        end = time.perf_counter()
+
 
     print(f"Timestep: {timestep}")
     print("Micro detected")
     if micro_node_id is not None:
         print(f"Micro started by node {micro_node_id}")
+    if (perf_check):
+        print(f"Elapsed time: {end-start:.6f} seconds")
     if(graphics):
         print_sheet(l, nodes, muscles)
     if log:
