@@ -1,9 +1,7 @@
 #!/bin/bash
 
+# All configuration parameters can be set using the following input style
 
-# Currently you can set:
-# graphics (bool)
-# sim_time (float, higher value = slower simulation)
-python3 script.py graphics=false
+python3 script.py --graphics true --infinite true --sim_time 0.05
 
 echo "Simulation Complete :)"

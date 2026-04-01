@@ -1,99 +1,55 @@
 from muscles import Muscle
-from nodes import Node
-import time
-import sys
 from config import Config
-from drawing import *
-from simulation import run_simulation, print_sim_stats
+from topology import build_sheet
+from monte_carlo import run_muscle_rp_monte_carlo, display_monte_carlo_summary
 
 # Configuration is managed by Config dataclass:
 # sim_time, graphics, infinite, perf_check, heartbeat_time,
 # default_ct, default_rp, slow_ct, slow_rp, blocked_ids,
-# log, debugging, firing_node, l, max_log_lines.
+# log, debugging, firing_node, length, max_log_lines.
 
 
 def main(argv=None):
-    cfg = Config()
+    cfg = Config.from_args(argv)
 
-    if argv is None:
-        argv = sys.argv[1:]
-
-    for arg in argv:
-        if "=" not in arg:
-            print(f"Unrecognized argument: {arg}")
-            exit()
-        key, value = arg.split("=", 1)
-        key = key.strip().lower()
-        value = value.strip()
-
-        if key == "graphics" or key == "g":
-            cfg.graphics = value.lower() in ("1", "true", "yes", "y", "t", "on")
-        elif key == "infinite" or key == "s":
-            cfg.infinite = value.lower() in ("1", "true", "yes", "y", "t", "on")
-        elif key == "sim_time" or key == "t":
-            try:
-                cfg.sim_time = float(value)
-            except ValueError:
-                pass
-
-    nodes, muscles = build_sheet(cfg.l)
+    nodes, muscles = build_sheet(cfg.length)
 
     Muscle.set_defaults(muscles, rp=cfg.default_rp, ct=cfg.default_ct)
     Muscle.set_multiplier_for_ids(muscles, cfg.blocked_ids, rp=cfg.slow_rp, ct=cfg.slow_ct)
 
-    def display_step(timestep, nodes, muscles, micro, event_log):
-        clear_terminal()
-        set_cursor(1, 1)
-        print_info()
-        print_sim_stats(cfg)
-        if micro:
-            print("MICRO DETECTED")
-        print(f"Timestep: {timestep}")
-        if cfg.graphics:
-            print_sheet(cfg.l, nodes, muscles)
+    # Monte Carlo setup for explicit target muscles.
+    mc_target_muscle_ids = [51, 63, 64, 199, 211, 212]  # Example muscle IDs to target in Monte Carlo trials
 
-        if cfg.log:
-            log_row_start = (cfg.l + 1) * 4 + 4
-            set_cursor(log_row_start, 1)
-            print("Event Log:")
-            for i, msg in enumerate(event_log[-cfg.max_log_lines:]):
-                set_cursor(log_row_start + 1 + i, 1)
-                print(msg)
+    mc_trials = 200
+    mc_rp_ranges = [(0.005, 4)]  # Same RP range for each target muscle
+    mc_ct_ranges = [(0.1, 10)]  # Same CT range for each target muscle
 
-        if cfg.graphics:
-            time.sleep(cfg.sim_time)
+    mc_seed = 42
+    mc_max_timesteps = 400
+    mc_save_path = "results/monte_carlo_micro_hits.json"
 
-    hide_cursor()
+    if not all(0 <= mid < len(muscles) for mid in mc_target_muscle_ids):
+        raise ValueError(f"mc target muscles {mc_target_muscle_ids} are out of range")
 
-    result = run_simulation(
-        nodes,
-        muscles,
-        cfg.firing_node,
+    mc_summary = run_muscle_rp_monte_carlo(
         cfg,
-        max_timesteps=None,
-        step_callback=display_step if cfg.graphics or cfg.log else None,
+        muscle_ids=mc_target_muscle_ids,
+        rp_ranges=mc_rp_ranges,
+        ct_ranges=mc_ct_ranges,
+        trials=mc_trials,
+        max_timesteps=mc_max_timesteps,
+        seed=mc_seed,
+        save_path=mc_save_path,
+        base_nodes=nodes,
+        base_muscles=muscles,
     )
 
-    move_cursor_home()
-    clear_terminal()
-
-    print(f"Timestep: {result['timestep']}")
-    print("Micro detected")
-    if result["micro_node_id"] is not None:
-        print(f"Micro started by node {result['micro_node_id']}")
-    if cfg.perf_check:
-        print(f"Elapsed time: {result['elapsed']:.6f} seconds")
-    if cfg.graphics:
-        print_sheet(cfg.l, nodes, muscles)
-    if cfg.log:
-        print()
-        print("Event Log:")
-        for msg in result["event_log"]:
-            print(msg)
-
-    show_cursor()
+    display_monte_carlo_summary(mc_summary)
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\nSimulation interrupted by user.")
 

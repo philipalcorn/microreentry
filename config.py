@@ -1,4 +1,7 @@
 from dataclasses import dataclass, field
+import argparse
+
+
 @dataclass
 class Config:
     sim_time: float = 0.05
@@ -13,10 +16,50 @@ class Config:
     slow_ct: float = 4
     slow_rp: float = 0.1
 
-    blocked_ids: list[int] = field(default_factory=lambda: [51, 63, 64, 199, 211, 212])
+    blocked_ids: list[int] = field(default_factory=list)
 
     log: bool = False
     debugging: bool = False
     firing_node: int = 5
-    l: int = 12
+    length: int = 12
     max_log_lines: int = 25
+
+    @classmethod
+    def from_args(cls, argv=None):
+        """Parse command line arguments and return a Config instance."""
+        cfg = cls()
+
+        parser = argparse.ArgumentParser(description="Run microreentry simulation")
+        parser.add_argument("--graphics", type=str, default=str(cfg.graphics), help="true/false")
+        parser.add_argument("--infinite", type=str, default=str(cfg.infinite), help="true/false")
+        parser.add_argument("--sim_time", type=float, default=cfg.sim_time, help="time step sleep value")
+        parser.add_argument("--perf_check", type=str, default=str(cfg.perf_check), help="true/false")
+        parser.add_argument("--heartbeat_time", type=int, default=cfg.heartbeat_time, help="heartbeat interval")
+        parser.add_argument("--length", type=int, default=cfg.length, help="sheet size")
+        parser.add_argument("--firing_node", type=int, default=cfg.firing_node, help="starter node")
+        parser.add_argument("--max_log_lines", type=int, default=cfg.max_log_lines)
+        parser.add_argument("--log", type=str, default=str(cfg.log), help="true/false")
+        parser.add_argument("--debugging", type=str, default=str(cfg.debugging), help="true/false")
+
+        args = parser.parse_args(argv)
+
+        def parse_bool(val, name):
+            v = str(val).strip().lower()
+            if v in ("1", "true", "t", "yes", "y", "on"):
+                return True
+            if v in ("0", "false", "f", "no", "n", "off"):
+                return False
+            raise ValueError(f"Invalid arg for {name}: '{val}'. Use true/false or 1/0")
+
+        cfg.graphics = parse_bool(args.graphics, "graphics")
+        cfg.infinite = parse_bool(args.infinite, "infinite")
+        cfg.sim_time = args.sim_time
+        cfg.perf_check = parse_bool(args.perf_check, "perf_check")
+        cfg.heartbeat_time = args.heartbeat_time
+        cfg.length = args.length
+        cfg.firing_node = args.firing_node
+        cfg.max_log_lines = args.max_log_lines
+        cfg.log = parse_bool(args.log, "log")
+        cfg.debugging = parse_bool(args.debugging, "debugging")
+
+        return cfg
