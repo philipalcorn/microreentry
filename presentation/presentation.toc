@@ -1,6 +1,3 @@
-\beamer@sectionintoc {1}{Discrete Cosine Transform}{3}{0}{1}
-\beamer@sectionintoc {2}{Applying Discrete Cosine Transforms to Images}{6}{0}{2}
-\beamer@sectionintoc {3}{Applying a Watermark}{13}{0}{3}
-\beamer@sectionintoc {4}{Comparing Image Similarity}{16}{0}{4}
-\beamer@sectionintoc {5}{Extracting a Watermark}{18}{0}{5}
-\beamer@sectionintoc {6}{Attacking the Image to Disrupt the Watermark}{21}{0}{6}
+\beamer@sectionintoc {1}{Overview}{3}{0}{1}
+\beamer@sectionintoc {2}{What we are doing}{10}{0}{2}
+\beamer@sectionintoc {3}{Results}{14}{0}{3}
