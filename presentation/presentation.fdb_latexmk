@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex presentation"] 1775599280.38871 "presentation.aux" "presentation.bbl" "presentation" 1775599342.19989 0
-  "./references.bib" 1775599150.85104 1289 6fd56c1720a842fba06a459c2167626c ""
+["bibtex presentation"] 1775671653.72504 "presentation.aux" "presentation.bbl" "presentation" 1775673623.36788 2
+  "./references.bib" 1775671604.74302 3132 b37fd4281c55d44aebff98ff57d1a286 ""
   "/usr/share/texlive/texmf-dist/bibtex/bst/ieeetran/IEEEtran.bst" 1440712899 57748 7c8250ecf02814ce6ddc0cdbb63df1dd ""
-  "presentation.aux" 1775599342.02557 4204 40083a31d0022fe760e1ff7031be4e59 "pdflatex"
+  "presentation.aux" 1775673623.20572 4987 2389fad022bb02ca5d013cc6c35fc74e "pdflatex"
   (generated)
   "presentation.bbl"
   "presentation.blg"
   (rewritten before read)
-["pdflatex"] 1775599341.25241 "presentation.tex" "presentation.pdf" "presentation" 1775599342.20003 0
+["pdflatex"] 1775673622.40503 "presentation.tex" "presentation.pdf" "presentation" 1775673623.36801 0
   "/etc/texmf/web2c/texmf.cnf" 1774820805.4694 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/tcss1000.tfm" 1136768653 1536 293044035fd171bb1d18cf655049b101 ""
@@ -242,12 +242,12 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1707919699 40399 f2c302f7d2af602abb742093540a5834 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1774821092.70747 5472669 54eaf61a88b6b7896ebd0dac973cb29c ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1774821148 8214021 53e2fce22e9f758dcc087fed6872e675 ""
-  "presentation.aux" 1775599342.02557 4204 40083a31d0022fe760e1ff7031be4e59 "pdflatex"
-  "presentation.bbl" 1775599280.44111 1688 cd201e7054b030a9df9105a83caefe5f "bibtex presentation"
-  "presentation.nav" 1775599342.02657 2404 ea2744b0ffcb9f4fcf746713675f3bd1 "pdflatex"
-  "presentation.out" 1775599342.02657 298 2499ba426519d7777326239ee9386207 "pdflatex"
-  "presentation.tex" 1775599340.35053 4478 cb6ebb18e693216e8ead2a17759c25ab ""
-  "presentation.toc" 1775599342.02657 142 b4f2ff0a43ce2b80392e1d58d5aabfb0 "pdflatex"
+  "presentation.aux" 1775673623.20572 4987 2389fad022bb02ca5d013cc6c35fc74e "pdflatex"
+  "presentation.bbl" 1775671653.77761 2697 7f9d50c98ed57b5dfb43b41ec87dddaa "bibtex presentation"
+  "presentation.nav" 1775673623.20672 2588 f5c039883da97b5ca474eb4da118ac0c "pdflatex"
+  "presentation.out" 1775673623.20672 298 2499ba426519d7777326239ee9386207 "pdflatex"
+  "presentation.tex" 1775673622.22774 9763 960d1e833e95522f8a7e4e315f6f9bb0 ""
+  "presentation.toc" 1775673623.20672 142 b4f2ff0a43ce2b80392e1d58d5aabfb0 "pdflatex"
   (generated)
   "presentation.aux"
   "presentation.log"

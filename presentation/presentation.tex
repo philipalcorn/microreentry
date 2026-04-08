@@ -16,6 +16,7 @@
 \usetheme{metropolis}
 \captionsetup{font=tiny,labelformat=empty,justification=centering}
 \setlength{\abovecaptionskip}{1pt}
+\setbeamertemplate{bibliography item}[text]
 
 \title{Micro Reentry Detection :)}
 \date{November 25, 2024}
@@ -109,7 +110,37 @@
 \end{frame}
 
 \begin{frame}{Why Study Reentry?}
+\begin{itemize}
+    \item \textbf{Primary mechanism of arrhythmias:}
+    \begin{itemize}
+        \item Reentry underlies many tachyarrhythmias (e.g., atrial fibrillation, 
+			ventricular tachycardia) \cite{jalife2000rotors, nattel2002af}
+    \end{itemize}
 
+    \item \textbf{Guides therapeutic intervention:}
+    \begin{itemize}
+        \item Identification of reentrant pathways enables targeted 
+			ablation strategies \cite{haissaguerre1998af}
+    \end{itemize}
+
+    \item \textbf{Links structure to function:}
+    \begin{itemize}
+        \item Tissue heterogeneity (fibrosis, infarct) promotes reentry 
+			formation and stability \cite{oliveira2018microreentry}
+    \end{itemize}
+
+    \item \textbf{Enables predictive modeling:}
+    \begin{itemize}
+        \item Computational models of reentry support patient-specific 
+			diagnosis and treatment planning \cite{trayanova2011modeling}
+    \end{itemize}
+
+    \item \textbf{Fundamental excitable media physics:}
+    \begin{itemize}
+        \item Reentry provides a canonical example of wave propagation and 
+			nonlinear dynamics \cite{winfree1987timing}
+    \end{itemize}
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Papers discussing micro reentry after ablation}
@@ -125,16 +156,78 @@
 \section{What we are doing}
 
 \begin{frame}{Our Goal}
+\begin{itemize}
+    \item \textbf{Objective:}
+    \begin{itemize}
+        \item Develop a computational framework to automatically detect reentrant activity in excitable networks
+    \end{itemize}
 
+    \item \textbf{Input Parameters:}
+    \begin{itemize}
+        \item Network topology (muscular connectivity graph)
+        \item Conduction delays along edges
+        \item Node refractory periods
+    \end{itemize}
+
+    \item \textbf{Core Goal:}
+    \begin{itemize}
+        \item Identify conditions under which circulating excitation (reentry) emerges from initial stimulation
+    \end{itemize}
+
+    \item \textbf{Technical Focus:}
+    \begin{itemize}
+        \item Detect closed-loop propagation satisfying timing constraints (return after recovery)
+        \item Characterize stability and persistence of reentrant pathways
+    \end{itemize}
+\end{itemize}
 \end{frame}
 
 \begin{frame}{How does this goal fit with the other projects we have?}
-    
+    \begin{itemize}
+    \item \textbf{Integration with Existing Work:}
+    \begin{itemize}
+        \item Builds on top of the main simulator to enable a more simplistic way
+			to search for reentrany circuit dynamics. The long term goal is 
+			to use this tool to determine what the pattern is for reentrant 
+			circuits and to make some connections to scar tissue or fibrosis 
+			patterns.
+    \end{itemize}
+
+    \item \textbf{Shared Parameters, Extended Search Dynamics}
+    \begin{itemize}
+        \item Utilizes the same network properties such as RP and CT while 
+			increasing the generality of the simulation. 
+		\item Spatial dimentionality has also been removed to 
+			consider solely the connections between nodes and their properties.
+		\item Other methods of examing circuits are also enabled such as 
+			monte carlo simulations.
+    \end{itemize}
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Simple mesh program}
+\begin{itemize}
+    \item \textbf{Simulator Overview:}
+    \begin{itemize}
+        \item Discrete-time excitable network simulator modeling electrical 
+			propagation through cardiac-like tissue
+		\item Designed to enable automatic search for network properties-
+			currently focused on reentry detection
+    \end{itemize}
 
+    \item \textbf{Initialization \& Control:}
+    \begin{itemize}
+        \item Configurable initial stimulation patterns and network parameters
+        \item Supports parameter sweeps across conduction and refractory properties
+    \end{itemize}
 
+    \item \textbf{Outputs:}
+    \begin{itemize}
+        \item Setup to record network properties based on initial configuration
+			prarameters that result in a reentrant circuit
+		\item Any output record can be viewed using just a terminal
+    \end{itemize}
+\end{itemize}
 \end{frame}
 
 \section{Results}
@@ -143,13 +236,45 @@
 \end{frame}
 
 \begin{frame}{Transferring setups from the mini-sim to full model}
-    
+    \begin{itemize}
+    \item \textbf{Model Integration:}
+    \begin{itemize}
+        \item Results are stored in JSON format and include the origal 
+			paremeters for the monte carlo sim, as well as each trial result
+		\item Trial results include the specific parameters for each modified 
+			muscle and whether that trial resulted in a reentrant circuit
+    \end{itemize}
+
+    \item \textbf{Interface to Simulator:}
+    \begin{itemize}
+		\item Currently models need to be recreated by hand. Long term it 
+			should not be difficult to write a script to generate the files 
+			needed to run in the main simulator.
+        \item In addition, the mini-sim used CT rather than CV and 
+			Length due to not using a spatial model, so this needs to be 
+			accounted for when transferring models.
+    \end{itemize}
+
+    \item \textbf{Scalability Considerations:}
+    \begin{itemize}
+        \item Currently designed primarily for relatively small networks. 
+			However, due to not including things like contraction, it does not 
+			require a significant amount of computational resources
+    \end{itemize}
+\end{itemize}
 \end{frame}
 \begin{frame}{Current Limitations}
-    
+   UNLIMITED POWER 
 \end{frame}
 \begin{frame}{Future plans for the project}
-   Hand it over to Dr. Wyatt 
+	\begin{itemize}
+		\item Perform more monte carlo sims across a wider range of 
+			sub-networks (That is, differnt sets of muscles that get modified)
+		\item Automate the process of moving sims to the main model
+		\item Use the simulation results to determin a general rule or pattern 
+			for micro circuits in this type of model and use that pattern to 
+			draw conculsions about micro reentry circutis in the real heart 
+	\end{itemize}
 \end{frame}
 \begin{frame}[allowframebreaks]{References}
 	\bibliographystyle{IEEEtran}

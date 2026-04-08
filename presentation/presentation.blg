@@ -8,6 +8,10 @@ Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Database file #1: references.bib
+Repeated entry---line 70 of file references.bib
+ : @article{oliveira2018microreentry
+ :                                  ,
+I'm skipping whatever remains of this entry
 -- IEEEtran.bst version 1.14 (2015/08/26) by Michael Shell.
 -- http://www.michaelshell.org/tex/ieeetran/bibtex/
 -- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
@@ -15,45 +19,45 @@ Warning--empty author in aha_microreentry2016
 Warning--empty author in biorxiv_microreentry2021
 
 Done.
-You've used 4 entries,
+You've used 9 entries,
             4087 wiz_defined-function locations,
-            839 strings with 7982 characters,
-and the built_in function-call counts, 1761 in all, are:
-= -- 129
-> -- 32
-< -- 2
-+ -- 17
-- -- 7
-* -- 91
-:= -- 298
-add.period$ -- 8
-call.type$ -- 4
-change.case$ -- 4
-chr.to.int$ -- 0
-cite$ -- 6
-duplicate$ -- 153
-empty$ -- 156
-format.name$ -- 8
-if$ -- 383
+            872 strings with 8764 characters,
+and the built_in function-call counts, 5589 in all, are:
+= -- 462
+> -- 96
+< -- 45
++ -- 57
+- -- 15
+* -- 264
+:= -- 885
+add.period$ -- 18
+call.type$ -- 9
+change.case$ -- 8
+chr.to.int$ -- 96
+cite$ -- 11
+duplicate$ -- 421
+empty$ -- 447
+format.name$ -- 17
+if$ -- 1279
 int.to.chr$ -- 0
-int.to.str$ -- 4
-missing$ -- 27
-newline$ -- 37
-num.names$ -- 1
-pop$ -- 76
+int.to.str$ -- 9
+missing$ -- 66
+newline$ -- 52
+num.names$ -- 6
+pop$ -- 146
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 2
-skip$ -- 138
+skip$ -- 445
 stack$ -- 0
-substring$ -- 14
-swap$ -- 88
-text.length$ -- 2
+substring$ -- 242
+swap$ -- 323
+text.length$ -- 13
 text.prefix$ -- 0
 top$ -- 5
-type$ -- 4
+type$ -- 9
 warning$ -- 2
-while$ -- 2
-width$ -- 5
-write$ -- 55
-(There were 2 warnings)
+while$ -- 23
+width$ -- 10
+write$ -- 105
+(There was 1 error message)
