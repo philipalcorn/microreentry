@@ -46,6 +46,17 @@ class SimulationTests(unittest.TestCase):
         self.assertIn("micro", result)
         self.assertTrue(result["micro"] or result["timestep"] == 200)
 
+    def test_run_simulation_latches_micro_in_infinite_mode(self):
+        print("Running test_run_simulation_latches_micro_in_infinite_mode")
+        self.cfg.graphics = False
+        self.cfg.perf_check = False
+        self.cfg.infinite = True
+
+        # Run past the detection deadline (150) and ensure micro stays latched.
+        result = run_simulation(self.cfg, self.nodes, self.muscles, max_timesteps=200)
+        self.assertIn("micro", result)
+        self.assertTrue(result["micro"])
+
 
     def test_run_simulation_heartbeat_fire(self):
         print("Running test_run_simulation_heartbeat_fire")
@@ -72,6 +83,56 @@ class SimulationTests(unittest.TestCase):
         for i in range(15):
             log_event(event_log, i + 2, f"Timestep {i+2}: extra", max_log_lines=5)
         self.assertLessEqual(len(event_log), 5)
+
+    def test_reentry_detection_requires_more_than_half_refired_nodes_before_t150(self):
+        print("Running test_reentry_detection_requires_more_than_half_refired_nodes_before_t150")
+        event_log = []
+
+        # Use empty muscles and directly set node fire counts.
+        muscles = []
+
+        # Exactly 50% nodes refired is not enough before t=150.
+        half = len(self.nodes) // 2
+        for nid in range(half):
+            self.nodes[nid].has_fired = 2
+
+        _, micro, micro_origin = update_everything(
+            0,
+            self.nodes,
+            muscles,
+            event_log,
+            None,
+            debugging=False,
+            max_log_lines=10,
+        )
+        self.assertFalse(micro)
+        self.assertIsNone(micro_origin)
+
+        # Crossing 50% before t=150 should trigger reentry.
+        self.nodes[half].has_fired = 2
+        _, micro, micro_origin = update_everything(
+            1,
+            self.nodes,
+            muscles,
+            event_log,
+            None,
+            debugging=False,
+            max_log_lines=10,
+        )
+        self.assertTrue(micro)
+        self.assertIsNotNone(micro_origin)
+
+        # Even if threshold is crossed, detection should not trigger at/after t=150.
+        _, micro, _ = update_everything(
+            150,
+            self.nodes,
+            muscles,
+            event_log,
+            None,
+            debugging=False,
+            max_log_lines=10,
+        )
+        self.assertFalse(micro)
 
 
 if __name__ == "__main__":

@@ -1,3 +1,6 @@
+import os
+import random
+
 from muscles import Muscle
 from config import Config
 from topology import build_sheet
@@ -17,15 +20,33 @@ def main(argv=None):
     Muscle.set_defaults(muscles, rp=cfg.default_rp, ct=cfg.default_ct)
     Muscle.set_multiplier_for_ids(muscles, cfg.blocked_ids, rp=cfg.slow_rp, ct=cfg.slow_ct)
 
-    # Monte Carlo setup for explicit target muscles.
-    mc_target_muscle_ids = [51, 63, 64, 199, 211, 212]  # Example muscle IDs to target in Monte Carlo trials
+    # Monte Carlo setup with explicit per-target ranges.
+    mc_target_muscle_ids = [51, 63, 64, 199, 211, 212]
 
-    mc_trials = 200
-    mc_rp_ranges = [(0.005, 4)]  # Same RP range for each target muscle
-    mc_ct_ranges = [(0.1, 10)]  # Same CT range for each target muscle
+    mc_trials = 20
+    mc_rp_ranges = [
+        (0.05, 0.15),  # muscle 51
+        #(0.1,0.1),  # muscle 63
+        #(0.1,0.1),  # muscle 64
+        #(0.1,0.1),  # muscle 199
+        #(0.1,0.1),  # muscle 211
+        #(0.1,0.1),  # muscle 212
+    ]
+    #TODO: Need to change the randomizaiton to assign same CT to all muscles
+    mc_ct_ranges = [
+        (4,4),  # muscle 51
+        #(4,4),  # muscle 63
+        #(4,4),  # muscle 64
+        #(4,4),  # muscle 199
+        #(4,4),  # muscle 211
+        #(4,4),  # muscle 212
+    ]
 
-    mc_seed = 42
-    mc_max_timesteps = 400
+    # Randomize each run by default; set MC_SEED for reproducible runs.
+    mc_seed_env = os.getenv("MC_SEED")
+    mc_seed = int(mc_seed_env) if mc_seed_env is not None else random.randrange(0, 2**32)
+    print(f"Monte Carlo seed: {mc_seed}")
+    mc_max_timesteps = 500 
     mc_save_path = "results/monte_carlo_micro_hits.json"
 
     if not all(0 <= mid < len(muscles) for mid in mc_target_muscle_ids):

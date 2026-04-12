@@ -45,9 +45,31 @@ def display_step(cfg, timestep, nodes, muscles, micro, event_log):
 
 def display_result(cfg, result, nodes, muscles):
     print(f"Timestep: {result['timestep']}")
-    print("Micro detected")
-    if result["micro_node_id"] is not None:
-        print(f"Micro started by node {result['micro_node_id']}")
+    if result.get("micro"):
+        print("Micro detected")
+        if result["micro_node_id"] is not None:
+            print(f"Micro started by node {result['micro_node_id']}")
+    else:
+        print("Micro not detected")
+
+    if "final_refired_count" in result and "total_nodes" in result:
+        print(
+            f"Refired nodes (final): {result['final_refired_count']}/{result['total_nodes']} "
+            f"({result.get('final_refired_ratio', 0.0):.3f})"
+        )
+    if "max_refired_before_deadline" in result and "detection_deadline" in result and "total_nodes" in result:
+        print(
+            "Max refired nodes before deadline "
+            f"t<{result['detection_deadline']}: "
+            f"{result['max_refired_before_deadline']}/{result['total_nodes']}"
+        )
+    if result.get("detection_timestep") is not None:
+        print(
+            "Detection latched at timestep "
+            f"{result['detection_timestep']} "
+            f"with {result.get('detection_refired_count')} refired nodes"
+        )
+
     if cfg.perf_check:
         print(f"Elapsed time: {result['elapsed']:.6f} seconds")
     if cfg.graphics:

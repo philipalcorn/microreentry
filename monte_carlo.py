@@ -132,6 +132,8 @@ def run_muscle_rp_monte_carlo(
     if base_nodes is not None and base_muscles is not None:
         validate_muscles(base_muscles)
 
+    progress_interval = 1000
+
     for trial in range(1, trials + 1):
         if base_nodes is not None and base_muscles is not None:
             # Each trial starts from the same caller-provided baseline state.
@@ -191,11 +193,21 @@ def run_muscle_rp_monte_carlo(
             "micro": result["micro"],
             "micro_node_id": result["micro_node_id"],
             "timestep": result["timestep"],
+            "detection_deadline": result.get("detection_deadline"),
+            "detection_timestep": result.get("detection_timestep"),
+            "detection_refired_count": result.get("detection_refired_count"),
+            "max_refired_before_deadline": result.get("max_refired_before_deadline"),
+            "final_refired_count": result.get("final_refired_count"),
+            "final_refired_ratio": result.get("final_refired_ratio"),
+            "total_nodes": result.get("total_nodes"),
         }
         trial_results.append(trial_record)
 
         if result["micro"]:
             micro_hits.append(trial_record)
+
+        if trial % progress_interval == 0 or trial == trials:
+            print(f"Monte Carlo progress: {trial}/{trials}")
 
     summary = {
         "trials": trials,

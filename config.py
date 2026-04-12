@@ -8,7 +8,7 @@ class Config:
     graphics: bool = True
     infinite: bool = False
     perf_check: bool = True
-    heartbeat_time: int = 600
+    heartbeat_time: int = 1000
 
     default_ct: int = 6
     default_rp: int = 350

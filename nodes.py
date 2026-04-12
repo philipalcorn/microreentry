@@ -12,7 +12,6 @@ class Node:
     # refractory or not)
                         
     def fire(self, external_muscles):
-        self.has_fired += 1
         activated = False
         micro_triggers = [] # List of muscle ids that triggered this node to fire, used to detect micro reentry
 
@@ -24,6 +23,10 @@ class Node:
                         activated = True
                         if m.has_fired > 1:
                             micro_triggers.append(m.id) # Add the muscle id to the micro triggers list if this muscle has fired more than once
+
+        # Count a fire only when at least one connected muscle actually activates.
+        if activated:
+            self.has_fired += 1
 
         return activated, micro_triggers # Return whether this node was activated, and any micro triggers that were detected
 
