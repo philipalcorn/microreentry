@@ -13,16 +13,26 @@
 \usepackage{verbatim}
 \usepackage{graphicx}
 \usepackage{cite}
+
+
 \usetheme{metropolis}
 \captionsetup{font=tiny,labelformat=empty,justification=centering}
 \setlength{\abovecaptionskip}{1pt}
 \setbeamertemplate{bibliography item}[text]
 
 \title{Micro Reentry Detection :)}
-\date{November 25, 2024}
+\date{April 13, 2026}
 \author{Phil Alcorn, Sadie Shudde}
 \institute{Tarleton State University}
 
+\definecolor{slidepurple}{RGB}{120,81,169}
+\setbeamercolor{frametitle}{bg=slidepurple, fg=white}
+\setbeamercolor{structure}{fg=slidepurple}
+\setbeamercolor{progress bar}{fg=slidepurple, bg=white}
+\setbeamercolor{titleformat title}{bg=slidepurple, fg=white}
+
+% Do NOT set background canvas—you want to keep it white.
+% \setbeamercolor{background canvas}{bg=white} % Not needed, default is white
 \begin{document}
 %\pgfpagesuselayout{4 on 1}[letterpaper,border shrink=5mm]
 
@@ -34,60 +44,23 @@
 
 \section{Overview}
 
-\begin{frame}{Overview of Micro Reentry}
-\begin{itemize}
-    \item \textbf{Definition:} Micro reentry circuits are small-scale reentrant 
-		pathways in excitable media (e.g., cardiac tissue) that sustain 
-		self-propagating electrical activity.\cite{aha_microreentry2016}
-
-    \item \textbf{Mechanism:}
-    \begin{itemize}
-        \item Requires a closed conduction loop
-        \item Unidirectional block in part of the pathway
-        \item Conduction delay allowing tissue ahead to recover excitability
-    \end{itemize}
-
-	\item \textbf{Characteristic Scale:} 
-    \begin{itemize}
-        \item Typically on the order of millimeters or smaller
-        \item Often below spatial resolution of clinical imaging
-    \end{itemize}
-
-    \item \textbf{Physiological Context:}
-    \begin{itemize}
-        \item Commonly observed in cardiac arrhythmias (e.g., atrial 
-			fibrillation, ventricular tachycardia)
-        \item Associated with heterogeneous tissue properties (fibrosis, ischemia)
-    \end{itemize}
-
-\end{itemize}
-\vspace{-5pt}
-
-\end{frame}
 
 \begin{frame}{Basic Reentry}
-\begin{itemize}
-    \item A reentry circuit is a circulating excitation wave in a closed pathway of excitable tissue.
-
-    \item \textbf{Structure:} Loop (anatomical or functional) with cell-to-cell 
-		conduction. \cite{biorxiv_microreentry2021}
-
-    \item \textbf{Sustaining Condition:}
     \begin{itemize}
-        \item Wave returns after tissue has recovered excitability
-        \item Requires sufficient path length relative to conduction delay and refractory period
+        \item A reentry circuit is a circulating excitation wave in a closed pathway of excitable tissue.
+        \item \textbf{Structure:} Loop (anatomical or functional) with cell-to-cell conduction.
+        \item \textbf{Sustaining Condition and Key Dynamics:}
+        \begin{itemize}
+            \item Wave returns after tissue has recovered excitability
+            \item Requires sufficient path length relative to conduction delay and refractory period
+            \item Favored by tissue heterogeneity (e.g., areas of slow conduction)
+        \end{itemize}
     \end{itemize}
-
-    \item \textbf{Key Dynamics:}
-    \begin{itemize}
-        \item Finite conduction velocity
-        \item Refractory period limits re-excitation
-		\item More likely to occur in more heterogeneus tissue
-		\item Often represented as a 1D ring of excitable elements with a circulating wave.
-    \end{itemize}
-
-\end{itemize}
-\vspace{-8pt}
+    \begin{center}
+        \includegraphics[width=0.4\linewidth]{basicReentry.jpg}
+        
+        \scriptsize{\textit{Figure source: Kaye G C. Percutaneous interventional electrophysiology, BMJ 2003;327:280. doi:10.1136/bmj.327.7409.280}}
+    \end{center}
 \end{frame}
 
 
@@ -108,6 +81,38 @@
     \end{itemize}
 \end{itemize}
 \end{frame}
+
+\begin{frame}{Overview of Micro Reentry}
+\begin{itemize}
+    \item \textbf{Definition:} Micro reentry circuits are small-scale reentrant 
+		pathways in excitable media (e.g., cardiac tissue) that sustain 
+		self-propagating electrical activity.\cite{aha_microreentry2016}
+
+    \item \textbf{Mechanism:}
+    \begin{itemize}
+        \item Requires a closed conduction loop
+        \item Unidirectional block in part of the pathway
+        \item Conduction delay allowing tissue ahead to recover excitability
+    \end{itemize}
+
+	\item \textbf{Characteristic Scale:} 
+    \begin{itemize}
+        \item Typically on the order of centimeters or smaller
+        \item Often below spatial resolution of clinical imaging
+    \end{itemize}
+
+    \item \textbf{Physiological Context:}
+    \begin{itemize}
+        \item Commonly observed in cardiac arrhythmias (e.g., atrial 
+			fibrillation, ventricular tachycardia)
+        \item Associated with heterogeneous tissue properties (fibrosis, ischemia)
+    \end{itemize}
+
+\end{itemize}
+\vspace{-5pt}
+
+\end{frame}
+
 
 \begin{frame}{Why Study Reentry?}
 \begin{itemize}
@@ -135,22 +140,32 @@
 			diagnosis and treatment planning \cite{trayanova2011modeling}
     \end{itemize}
 
-    \item \textbf{Fundamental excitable media physics:}
-    \begin{itemize}
-        \item Reentry provides a canonical example of wave propagation and 
-			nonlinear dynamics \cite{winfree1987timing}
-    \end{itemize}
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Papers discussing micro reentry after ablation}
-
-
+\begin{frame}{Micro Reentry After Ablation}
+    \begin{itemize}
+        \item Microreentrant atrial tachycardias can occur after AF ablation, especially at gaps in ablation lines \cite{ng2017microreentrant}.
+        \item These circuits are very small—sometimes just a few millimeters—and often missed with traditional mapping \cite{mantovan2020microreentry}.
+        \item High-resolution mapping enables detection and targeted ablation of these circuits.
+    \end{itemize}
+    \begin{center}
+        \includegraphics[width=0.8\linewidth]{MicroLeftTach.png}
+        
+        \scriptsize{\textit{Figure: High-density mapping of a microreentrant circuit near a gap in the ablation line~\cite{ng2017microreentrant}}}
+    \end{center}
 \end{frame}
 
-\begin{frame}{Papers talking about the size of micro circuits}
-
-
+\begin{frame}{Size of Microreentrant Circuits}
+    \begin{itemize}
+        \item Microreentrant circuits can be extremely small—sometimes just a few millimeters, far below conventional mapping resolution and detectable only with high-density systems like Rhythmia-Orion \cite{mantovan2020microreentry,ng2017microreentrant}.
+        \item The likelihood and location of microreentry depend on tissue structure, wall thickness, and fibrosis.
+    \end{itemize}
+    \begin{center}
+        \includegraphics[width=0.7\linewidth]{HowSmallMicroReentry.png}
+        
+        {\scriptsize \textit{Figure: High-density mapping reveals a microreentrant circuit confined to a millimeter-scale region~\cite{mantovan2020microreentry}.}}
+    \end{center}
 \end{frame}
 
 \section{What we are doing}
@@ -224,16 +239,51 @@
     \item \textbf{Outputs:}
     \begin{itemize}
         \item Setup to record network properties based on initial configuration
-			prarameters that result in a reentrant circuit
+			parameters that result in a reentrant circuit
 		\item Any output record can be viewed using just a terminal
     \end{itemize}
 \end{itemize}
 \end{frame}
 
-\section{Results}
-\begin{frame}{Interesting values so far }
-	Open questions of why would muscles have significantly smaller RPs 
+\begin{frame}{Basic Mesh Program Setup}
+    \begin{center}
+		\includegraphics[width=0.95\linewidth]{terminal_setup.png}
+    \end{center}
+	\vspace{-5pt}
+    \begin{itemize}{}
+        \item{We created a simple version of our model in Python that 
+			is a 12X12 grid. The muscles and nodes have ID's that we can 
+			change the Conduction Time(CT) and the Refractory Period(RP). 
+			This allows us to test simulations much quick to get base values.}
+    \end{itemize}
 \end{frame}
+
+\section{Results}
+\begin{frame}{Basic Setup}
+    \begin{center}
+		\includegraphics[width=0.75\linewidth]{BasicBox.png}
+    \end{center}
+	\vspace{-5pt}
+	\begin{itemize}
+	\item {We tested several different shapes by hand to see what the smallest 
+		shape that would produce a micro reentry circuit would be. 
+		We found it to be this box with 2 appendages. We used the basic 
+		values of $RP=0.04$ and $CV=0.3$}
+	\end{itemize}
+\end{frame}
+\begin{frame}{Current Results}
+	\begin{itemize}
+	\item An initial trial run of 1000 Monte Carlo simulations with RP ranges
+		of (0.01, 0.1) and a CT range of (3.0,4.0) in our initial simple box 
+		yielded a 64.9\% reentry rate.
+	\item These results were transferable into the main simulator, although 
+		not every successful run was checked due to how long it takes to setup 
+		in the main sim
+	\item Future Monte Carlo sims will include both exploring different 
+		ranges of values and different sets of muscles to modify
+	\end{itemize}
+\end{frame}
+
 
 \begin{frame}{Transferring setups from the mini-sim to full model}
     \begin{itemize}
@@ -263,21 +313,28 @@
     \end{itemize}
 \end{itemize}
 \end{frame}
-\begin{frame}{Current Limitations}
-   UNLIMITED POWER 
+\begin{frame}{Current Limitations}	
+	\begin{itemize}
+		\item Currently it is difficult to efficiently move results between
+			simlulators. It should not be too difficult to fix this in the 
+			future.
+		\item This simulator is primarily designed for running small scale 
+			simulations. It is doubtful that it would perform well for 
+			larger meshes. 
+	\end{itemize}
 \end{frame}
 \begin{frame}{Future plans for the project}
 	\begin{itemize}
 		\item Perform more monte carlo sims across a wider range of 
 			sub-networks (That is, differnt sets of muscles that get modified)
 		\item Automate the process of moving sims to the main model
-		\item Use the simulation results to determin a general rule or pattern 
+		\item Use the simulation results to determine a general rule or pattern 
 			for micro circuits in this type of model and use that pattern to 
 			draw conculsions about micro reentry circutis in the real heart 
 	\end{itemize}
 \end{frame}
 \begin{frame}[allowframebreaks]{References}
 	\bibliographystyle{IEEEtran}
-	\bibliography{references}
+	\bibliography{./references.bib}
 \end{frame}
 \end{document}
