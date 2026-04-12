@@ -1,7 +1,24 @@
 import json
+import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import Config
+
 RESULTS_PATH = Path(__file__).parent / "monte_carlo_micro_hits.json"
+
+_cfg = Config()
+_default_rp = _cfg.default_rp
+_default_ct = _cfg.default_ct
+
+
+def effective_multipliers(rp_mult, ct_mult):
+    rp = rp_mult * _default_rp
+    ct = ct_mult * _default_ct
+    if rp <= ct:
+        rp = ct + 1
+    return rp / _default_rp, ct / _default_ct
+
 
 data = json.loads(RESULTS_PATH.read_text(encoding="utf-8"))
 
@@ -41,10 +58,14 @@ if reentries:
     print(f"  Avg final refired ratio: {sum(ratios) / len(ratios):.3f}")
     print(f"  Min / Max timestep:      {min(timesteps)} / {max(timesteps)}")
 
-print(f"\n{'Trial':>6}  {'Muscles (rp multiplier, ct multiplier)':<90}  {'Reentry':>24}")
+print(f"\n{'Trial':>6}  {'Muscles (effective rp mult, cv)':<90}  {'Reentry':>24}")
 print("-" * 124)
 for r in trial_results:
     label = "yes" if r.get("micro") else "no"
     mods = r.get("modifications", [])
-    pairs = "  ".join(f"{m['muscle_id']}:({m['randomized_rp']:.2f}, {m['randomized_ct']:.2f})" for m in mods)
+    pairs = "  ".join(
+        f"{m['muscle_id']}:({eff_rp:.4f}, {1/eff_ct:.4f})"
+        for m in mods
+        for eff_rp, eff_ct in [effective_multipliers(m['randomized_rp'], m['randomized_ct'])]
+    )
     print(f"{r['trial']:>6}  {pairs:<90}  {label:>7}")

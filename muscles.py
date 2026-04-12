@@ -25,6 +25,12 @@ class Muscle:
             self.default_conduction_time = ct
             self.conduction_time = ct
 
+        if self.refractory_period <= self.conduction_time:
+            raise ValueError(
+                f"Muscle {self.id}: conduction time ({self.conduction_time}) must be "
+                f"less than refractory period ({self.refractory_period})."
+            )
+
     @classmethod
     def set_defaults(cls, muscles, rp=None, ct=None):
         for m in muscles:
@@ -32,9 +38,9 @@ class Muscle:
 
     def set_multiplier(self, rp=None, ct=None):
         if rp is not None:
-            self.refractory_period = round(rp * self.default_refractory_period)
+            self.refractory_period = rp * self.default_refractory_period
         if ct is not None:
-            self.conduction_time = round(ct * self.default_conduction_time)
+            self.conduction_time = ct * self.default_conduction_time
 
         # Enforce a valid physiology rule: refractory period must exceed conduction time.
         # This avoids short RP that terminates the activation before conduction happens.
@@ -78,7 +84,7 @@ class Muscle:
             self.timer += 1
 
             # invisible electrical propagation at conduction point
-            if self.timer == self.conduction_time:
+            if self.timer - 1 < self.conduction_time <= self.timer:
                 for nid in self.connected_node_ids:
                     if nid != self.activated_from_id:
                         fired_node_ids.append(nid)

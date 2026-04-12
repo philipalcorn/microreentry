@@ -23,9 +23,9 @@ def main(argv=None):
     # Monte Carlo setup with explicit per-target ranges.
     mc_target_muscle_ids = [51, 63, 64, 199, 211, 212]
 
-    mc_trials = 200
+    mc_trials = 50 
     mc_rp_ranges = [
-        (0.05, 0.15),  # muscle 51
+        (0.01, 0.1),  # muscle 51
         #(0.1,0.1),  # muscle 63
         #(0.1,0.1),  # muscle 64
         #(0.1,0.1),  # muscle 199
@@ -34,7 +34,7 @@ def main(argv=None):
     ]
     #TODO: Need to change the randomizaiton to assign same CT to all muscles
     mc_ct_ranges = [
-        (3.5,4.5),  # muscle 51
+        (3, 4),  # muscle 51
         #(4,4),  # muscle 63
         #(4,4),  # muscle 64
         #(4,4),  # muscle 199

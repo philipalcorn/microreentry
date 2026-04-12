@@ -17,8 +17,8 @@ class SimulationTests(unittest.TestCase):
         self.assertTrue(self.cfg.graphics)
         self.assertEqual(self.cfg.sim_time, 0.05)
         self.assertEqual(self.cfg.heartbeat_time, 600)
-        self.assertEqual(self.cfg.default_rp, 350)
-        self.assertEqual(self.cfg.default_ct, 6)
+        self.assertEqual(self.cfg.default_rp, 300.0)
+        self.assertEqual(self.cfg.default_ct, 3.0)
         self.assertEqual(self.cfg.length, 12)
         self.assertEqual(self.cfg.blocked_ids, [])
 

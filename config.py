@@ -10,8 +10,8 @@ class Config:
     perf_check: bool = True
     heartbeat_time: int = 1000
 
-    default_ct: int = 6
-    default_rp: int = 350
+    default_ct: float =  10/3 
+    default_rp: float = 300
 
     slow_ct: float = 4
     slow_rp: float = 0.1

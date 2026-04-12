@@ -26,8 +26,6 @@ from simulation import run_simulation
 
 
 def _sample_range(rng, low, high):
-    if isinstance(low, int) and isinstance(high, int):
-        return rng.randint(low, high)
     return rng.uniform(float(low), float(high))
 
 
