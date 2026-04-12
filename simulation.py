@@ -1,9 +1,6 @@
 import time
 
 
-DETECTION_DEADLINE = 500 
-
-
 def log_event(event_log, t, msg, max_log_lines=25):
     for line in event_log:
         if f"Timestep {t}:" in line:
@@ -46,7 +43,7 @@ def update_everything(
                 log_event(event_log, t, f"Timestep {t}: node {nid} fired", max_log_lines=max_log_lines)
 
     # Reentry is detected only if the threshold is crossed by the detection deadline.
-    detection_deadline = DETECTION_DEADLINE
+    detection_deadline = cfg.heartbeat_time - 1  
     refired_nodes = [node.id for node in nodes if node.has_fired > 1]
     refired_count = len(refired_nodes)
     threshold = len(nodes) / 2 if nodes else 0
@@ -74,6 +71,7 @@ def run_simulation(
     micro_node_id = None
     detection_timestep = None
     detection_refired_count = None
+    detection_deadline = cfg.heartbeat_time - 1  
     max_refired_before_deadline = 0
     start = time.perf_counter() if cfg.perf_check else None
 
@@ -96,7 +94,7 @@ def run_simulation(
         )
 
         current_refired_count = sum(1 for node in nodes if node.has_fired > 1)
-        if timestep <= DETECTION_DEADLINE:
+        if timestep <= detection_deadline:
             max_refired_before_deadline = max(max_refired_before_deadline, current_refired_count)
 
         # Once reentry is detected, keep it latched for the rest of the run.
@@ -124,7 +122,7 @@ def run_simulation(
         "timestep": timestep,
         "micro": micro,
         "micro_node_id": micro_node_id,
-        "detection_deadline": DETECTION_DEADLINE,
+        "detection_deadline": detection_deadline,
         "detection_timestep": detection_timestep,
         "detection_refired_count": detection_refired_count,
         "max_refired_before_deadline": max_refired_before_deadline,

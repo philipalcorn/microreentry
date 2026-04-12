@@ -32,9 +32,9 @@ class Muscle:
 
     def set_multiplier(self, rp=None, ct=None):
         if rp is not None:
-            self.refractory_period = rp * self.default_refractory_period
+            self.refractory_period = round(rp * self.default_refractory_period)
         if ct is not None:
-            self.conduction_time = ct * self.default_conduction_time
+            self.conduction_time = round(ct * self.default_conduction_time)
 
         # Enforce a valid physiology rule: refractory period must exceed conduction time.
         # This avoids short RP that terminates the activation before conduction happens.

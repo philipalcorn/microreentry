@@ -3,19 +3,20 @@
 set -euo pipefail
 
 RESULTS_PATH="results/monte_carlo_micro_hits.json"
-SIM_TIME="${1:-0.05}"
+SIM_TIME="${1:-0.02}"
 
-TOTAL_TRIALS="$(python3 - <<'PY'
+read -r TOTAL_TRIALS REENTRY_TRIALS < <(python3 - <<'PY'
 import json
 from pathlib import Path
 
-path = Path("results/monte_carlo_micro_hits.json")
-data = json.loads(path.read_text(encoding="utf-8"))
-print(data["trials"])
+data = json.loads(Path("results/monte_carlo_micro_hits.json").read_text(encoding="utf-8"))
+reentries = [str(r["trial"]) for r in data.get("trial_results", []) if r.get("micro")]
+print(data["trials"], " ".join(reentries))
 PY
-)"
+)
 
 echo "Available trials: ${TOTAL_TRIALS} (valid range: 1-${TOTAL_TRIALS})"
+echo "Reentry trials: ${REENTRY_TRIALS}"
 
 while true; do
 	read -r -p "Enter trial number: " TRIAL_NUMBER

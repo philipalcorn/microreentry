@@ -138,6 +138,10 @@ def main(argv=None):
             )
 
     summary = _load_summary(args.results_path)
+    reentry_trials = [r["trial"] for r in summary.get("trial_results", []) if r.get("micro")]
+    total = summary.get("trials", len(summary.get("trial_results", [])))
+    print(f"Reentry trials ({len(reentry_trials)}/{total}): {reentry_trials}")
+
     hit = _select_hit(
         summary,
         hit_index=args.hit_index,

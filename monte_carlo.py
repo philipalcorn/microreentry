@@ -41,8 +41,8 @@ def display_monte_carlo_summary(summary):
     if ct_ranges_display is not None:
         print(f" - CT ranges: {ct_ranges_display}")
     print(f" - Trials: {summary['trials']}")
-    print(f" - Micro hits: {summary['micro_count']}")
-    print(f" - Micro rate: {summary['micro_rate']:.3f}")
+    print(f" - Reentries: {summary['reentry_count']}")
+    print(f" - Reentry rate: {summary['reentry_rate']:.3f}")
     if "saved_to" in summary:
         print(f" - Saved results: {summary['saved_to']}")
 
@@ -160,14 +160,10 @@ def run_muscle_rp_monte_carlo(
                 ct_min, ct_max = ct_ranges_expanded[idx]
                 randomized_ct = _sample_range(rng, ct_min, ct_max)
             else:
-                randomized_ct = target.default_conduction_time
+                randomized_ct = None
 
-            target.set_individual_defaults(rp=randomized_rp, ct=randomized_ct)
-
-            # Keep RP strictly greater than CT for physiologic consistency.
-            if target.refractory_period <= target.conduction_time:
-                target.refractory_period = target.conduction_time + 1
-                target.default_refractory_period = target.refractory_period
+            # rp and ct are treated as multipliers of each muscle's default values.
+            target.set_multiplier(rp=randomized_rp, ct=randomized_ct)
 
             trial_modifications.append(
                 {
@@ -209,8 +205,13 @@ def run_muscle_rp_monte_carlo(
         if trial % progress_interval == 0 or trial == trials:
             print(f"Monte Carlo progress: {trial}/{trials}")
 
+    # Reentry trials first, then non-reentry trials; original trial number preserved.
+    trial_results.sort(key=lambda r: (0 if r["micro"] else 1, r["trial"]))
+
     summary = {
         "trials": trials,
+        "reentry_count": len(micro_hits),
+        "reentry_rate": len(micro_hits) / trials,
         "muscle_ids": list(muscle_ids),
         "rp_ranges_input": list(rp_ranges),
         "ct_ranges_input": list(ct_ranges) if ct_ranges is not None else None,
@@ -221,10 +222,7 @@ def run_muscle_rp_monte_carlo(
             else None
         ),
         "seed": seed,
-        "micro_count": len(micro_hits),
-        "micro_rate": len(micro_hits) / trials,
         "trial_results": trial_results,
-        "hits": micro_hits,
     }
 
     if save_path:
