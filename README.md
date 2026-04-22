@@ -146,9 +146,9 @@ This prints the full 12×12 grid with every node ID and muscle ID labeled in pla
 
 **Options:**
 
-| Option | Example | Effect |
-|--------|---------|--------|
-| `--length N`    | `--length 5`    | Change the grid size (default: 12). Use a smaller number like 5 or 6 to see a grid that fits on one screen. |
+|  Option  |  Example  |  Effect  |
+|----------|-----------|----------|
+| `--length N`| `--length 5`| Change the grid size (default: 12). Use a smaller number like 5 or 6 to see a grid that fits on one screen. |
 | `--plain`    | `--plain`    | Remove color codes — useful if copying the output to a document. |
 
 **Example — small 5×5 grid, no color:**
