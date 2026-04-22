@@ -2,6 +2,8 @@
 
 A computational model of **micro-reentry**, a type of cardiac arrhythmia where an electrical signal gets trapped in a small loop in heart tissue and keeps cycling, rather than dying out normally. This project simulates that behavior on a grid of cardiac cells and uses **Monte Carlo** experiments to discover which tissue parameters make reentry more or less likely.
 
+**Author:** Phil Alcorn — Tarleton State University
+
 ---
 
 ## Table of Contents
@@ -643,6 +645,12 @@ microreentry/
 │   └── test_simulation.py           Unit tests for core simulation logic.
 └── presentation/                    Slides, figures, and video from the research presentation.
 ```
+
+---
+
+## Acknowledgments
+
+This project was completed for the High Performance Computing Lab at Tarleton State University. Many thanks to Dr. Bryant Wyatt and Dr. Madhur Wyatt for their support and direction while working on this project. 
 
 ---
 
