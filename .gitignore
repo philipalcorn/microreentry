@@ -12,6 +12,7 @@ env/
 
 # Results / output
 results/*.json
+results/*.html
 results/**/*.json
 results/*.csv
 results/**/*.csv
@@ -27,6 +28,9 @@ results/*.jpeg
 .idea/
 *.swp
 *.swo
+
+presentation/*
+
 
 # OS
 .DS_Store
