@@ -158,6 +158,8 @@ python3 src/view_mesh.py --length 5 --plain
 
 Use this view to identify the IDs of the muscles you want to target in the Monte Carlo experiments.
 
+![Simulation grid running in the terminal](img/simulation_running.png)
+
 ---
 
 ## 5. Running the Monte Carlo Simulation
@@ -283,13 +285,16 @@ python3 src/replay_monte_carlo_trial.py \
     --results_path results/monte_carlo_micro_hits.json \
     --hit_index 0 \
     --graphics false
-```
 
+
+```
+Here is an example Reentry:
+![Example Reentry](img/reentry.png)
 ---
 
 ## 7. Visualizing Results
 
-Once you have a results file, you can generate an interactive parallel coordinates plot that opens automatically in your web browser.
+Once you have a results file, you can generate an interactive parallel coordinates plot that opens automatically in your web browser. Note: In my personal experience,the random forest visualizer is the most insightful. I have not removed the other options in case they are of some benefit in the future. 
 
 ```bash
 python3 results/visualize.py
@@ -317,6 +322,8 @@ Lines are colored **blue** for trials with no reentry and **red** for trials whe
 
 This allows you to visually identify the threshold: e.g., "reentry only occurs when the RP multiplier for muscle 211 is below 0.04."
 
+![Parallel coordinates plot](img/default_dashboard.png)
+
 ### Other Visualization Scripts
 
 Two additional scripts in the `results/` folder offer alternative views of the same data.
@@ -340,6 +347,8 @@ Requires `scikit-learn` in addition to `pandas` and `plotly` (`pip install sciki
 python3 results/rf_visualize.py results/monte_carlo_micro_hits.json --out results/results_rf.html
 ```
 
+![Random Forest analysis dashboard](img/random_forest_dashboard.png)
+
 **Optuna dashboard (`results/view_optuna.py`)**
 
 Loads the trial results into an [Optuna](https://optuna.org) study and launches the Optuna web dashboard, a richer interactive UI for exploring parameter relationships:
@@ -355,6 +364,8 @@ Requires `optuna` and `optuna-dashboard` (`pip install optuna optuna-dashboard`)
 ```bash
 python3 results/view_optuna.py --port 8081
 ```
+
+![Optuna dashboard](img/optuna_dashboard.png)
 
 *Note that the random forest trainer and the optuna dashboard are not reccomended for larger monte carlo sets.*
 
@@ -395,6 +406,8 @@ Reentry trials: [7, 45, 83, ...]
 ```
 
 Each row shows the effective parameter multipliers used for that trial, and whether reentry was detected. This script is particularly useful to tranfer parameters to other simulations or models.
+
+![Printed results summary](img/printed_results.png)
 
 ---
 
