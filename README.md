@@ -158,7 +158,6 @@ python3 src/view_mesh.py --length 5 --plain
 
 Use this view to identify the IDs of the muscles you want to target in the Monte Carlo experiments.
 
-![Simulation grid running in the terminal](img/simulation_running.png)
 
 ---
 
@@ -239,6 +238,9 @@ This will:
 2. Ask you to type a trial number. (Non- reentry runs can also be selected)
 3. Run that trial with a live animated display.
 
+The resulting grid will look something like this, where green is muscle ready to fire, purple is muscle that just fired and still has a signal propogating, and red is muscle in refractory period. 
+
+![Simulation grid running in the terminal](img/simulation_running.png)
 **Example session:**
 ```
 Available trials: 1000 (valid range: 1-1000)
@@ -289,6 +291,7 @@ python3 src/replay_monte_carlo_trial.py \
 
 ```
 Here is an example Reentry:
+
 ![Example Reentry](img/reentry.png)
 ---
 
