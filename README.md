@@ -72,8 +72,8 @@ Nodes are passive. They receive a signal and immediately attempt to fire all con
 
 A muscle has two key timing parameters:
 
-| Parameter | Symbol | Default | Meaning |
-|-----------|--------|---------|---------|
+| Parameter            | Symbol | Default  | Meaning |
+|----------------------|--------|----------|---------|
 | **Conduction Time** | CT | ~3.33 ms | How long the electrical signal takes to travel through the muscle. The signal arrives at the far node only after this many timesteps. |
 | **Refractory Period** | RP | 300 ms | How long the muscle stays inactive after firing. It cannot be re-activated until this period expires. |
 
@@ -146,9 +146,9 @@ This prints the full 12×12 grid with every node ID and muscle ID labeled in pla
 
 **Options:**
 
-|  Option  |  Example  |  Effect  |
-|----------|-----------|----------|
-| `--length N`| `--length 5`| Change the grid size (default: 12). Use a smaller number like 5 or 6 to see a grid that fits on one screen. |
+| Option | Example | Effect |
+|--------------|--------------|--------|
+| `--length N` | `--length 5` | Change the grid size (default: 12). Use a smaller number like 5 or 6 to see a grid that fits on one screen. |
 | `--plain`    | `--plain`    | Remove color codes — useful if copying the output to a document. |
 
 **Example — small 5×5 grid, no color:**
@@ -190,13 +190,13 @@ python3 script.py
 
 **Common options:**
 
-| Option | Default | Example | Effect |
-|--------|---------|---------|--------|
-| `--graphics true` | `false` | `--graphics true` | Show the animated grid in the terminal while simulating. Slows down the run significantly. |
-| `--sim_time 0.05` | `0` | `--sim_time 0.05` | Seconds to pause between timesteps when graphics are on. |
-| `--length 12` | `12` | `--length 8` | Grid size. |
-| `--heartbeat_time 1000` | `1000` | `--heartbeat_time 500` | Timesteps between simulated heartbeats. |
-| `--firing_node 5` | `5` | `--firing_node 0` | Which node starts the initial signal. |
+| Option                   | Default | Example                  | Effect |
+|--------------------------|---------|--------------------------|--------|
+| `--graphics true`        | `false` | `--graphics true`        | Show the animated grid in the terminal while simulating. Slows down the run significantly. |
+| `--sim_time 0.05`        | `0`     | `--sim_time 0.05`        | Seconds to pause between timesteps when graphics are on. |
+| `--length 12`            | `12`    | `--length 8`             | Grid size. |
+| `--heartbeat_time 1000`  | `1000`  | `--heartbeat_time 500`   | Timesteps between simulated heartbeats. |
+| `--firing_node 5`        | `5`     | `--firing_node 0`        | Which node starts the initial signal. |
 
 
 ### What You Will See
@@ -267,15 +267,15 @@ python3 replay_monte_carlo_trial.py \
 
 **Key options:**
 
-| Option | Example | Effect |
-|--------|---------|--------|
-| `--results_path PATH` | `--results_path results/monte_carlo_micro_hits.json` | Path to the saved results file (required). |
-| `--trial N` | `--trial 45` | Replay trial number N. |
-| `--hit_index N` | `--hit_index 0` | Replay the Nth reentry hit (0 = first reentry found). |
-| `--infinite true` | `--infinite true` | Keep running the simulation after reentry is detected (so you can watch it loop). |
-| `--graphics true/false` | `--graphics true` | Show the animated grid. |
-| `--sim_time 0.05` | `--sim_time 0.1` | Seconds between timesteps in the display. |
-| `--max_timesteps N` | `--max_timesteps 200` | Stop after N timesteps even if reentry has not been detected. |
+| Option                   | Example                                              | Effect |
+|--------------------------|------------------------------------------------------|--------|
+| `--results_path PATH`    | `--results_path results/monte_carlo_micro_hits.json` | Path to the saved results file (required). |
+| `--trial N`              | `--trial 45`                                         | Replay trial number N. |
+| `--hit_index N`          | `--hit_index 0`                                      | Replay the Nth reentry hit (0 = first reentry found). |
+| `--infinite true`        | `--infinite true`                                    | Keep running the simulation after reentry is detected (so you can watch it loop). |
+| `--graphics true/false`  | `--graphics true`                                    | Show the animated grid. |
+| `--sim_time 0.05`        | `--sim_time 0.1`                                     | Seconds between timesteps in the display. |
+| `--max_timesteps N`      | `--max_timesteps 200`                                | Stop after N timesteps even if reentry has not been detected. |
 
 **Example — replay the first reentry hit, no animation, just the final result:**
 ```bash
@@ -437,8 +437,8 @@ The results are saved as a JSON file at `results/monte_carlo_micro_hits.json`. J
 
 **Key fields explained:**
 
-| Field | Meaning |
-|-------|---------|
+| Field                   | Meaning |
+|-------------------------|---------|
 | `trials` | Total number of independent simulations run. |
 | `reentry_count` | Number of trials where micro-reentry was detected. |
 | `reentry_rate` | Fraction of trials with reentry (0.0 to 1.0). |
@@ -463,14 +463,14 @@ Some parameters cannot be changed via command-line flags and must be set by edit
 
 These variables are defined at the top of the `main()` function in `script.py`:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `mc_trials` | `1000` | Number of independent trials to run. More trials give more statistically reliable results but take longer to complete. |
-| `mc_target_muscle_ids` | `[51, 63, 64, 199, 211, 212]` | IDs of the muscles whose RP and CT are randomized each trial. All other muscles keep their default values. Use `view_mesh.py` to identify muscle IDs. |
-| `mc_rp_ranges` | `[(0.01, 0.1)]` | RP multiplier range(s) sampled uniformly each trial. A single entry applies to all target muscles; provide one entry per muscle to assign individual ranges. |
-| `mc_ct_ranges` | `[(3.0, 4.0)]` | CT multiplier range(s). Follows the same single-or-per-muscle broadcasting rule as `mc_rp_ranges`. |
-| `mc_max_timesteps` | `500` | Timestep cap per trial. Trials that have not produced reentry by this point are recorded as non-reentry. |
-| `mc_save_path` | `"results/monte_carlo_micro_hits.json"` | File path where results are written after the run. |
+| Variable               | Default                                  | Description |
+|------------------------|------------------------------------------|-------------|
+| `mc_trials`            | `1000`                                   | Number of independent trials to run. More trials give more statistically reliable results but take longer to complete. |
+| `mc_target_muscle_ids` | `[51, 63, 64, 199, 211, 212]`            | IDs of the muscles whose RP and CT are randomized each trial. All other muscles keep their default values. Use `view_mesh.py` to identify muscle IDs. |
+| `mc_rp_ranges`         | `[(0.01, 0.1)]`                          | RP multiplier range(s) sampled uniformly each trial. A single entry applies to all target muscles; provide one entry per muscle to assign individual ranges. |
+| `mc_ct_ranges`         | `[(3.0, 4.0)]`                           | CT multiplier range(s). Follows the same single-or-per-muscle broadcasting rule as `mc_rp_ranges`. |
+| `mc_max_timesteps`     | `500`                                    | Timestep cap per trial. Trials that have not produced reentry by this point are recorded as non-reentry. |
+| `mc_save_path`         | `"results/monte_carlo_micro_hits.json"`  | File path where results are written after the run. |
 
 **Trials:** 100 trials runs in seconds; 10,000 trials takes a few minutes.
 
@@ -493,10 +493,10 @@ mc_ct_ranges = [
 
 These values define the baseline tissue properties for all muscles before any per-trial randomization is applied:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
+| Variable     | Default        | Description |
+|--------------|----------------|-------------|
 | `default_ct` | `10/3` (~3.33) | Default conduction time for all muscles, in timesteps (ms). |
-| `default_rp` | `300` | Default refractory period for all muscles, in timesteps (ms). Must be greater than `default_ct`. |
+| `default_rp` | `300`          | Default refractory period for all muscles, in timesteps (ms). Must be greater than `default_ct`. |
 
 ```python
 default_ct: float = 10/3     # conduction time in timesteps
@@ -511,12 +511,12 @@ default_rp: float = 300      # refractory period in timesteps
 
 Runs the Monte Carlo simulation over many randomized trials and saves the results to a JSON file. The Monte Carlo setup (target muscles, trial count, parameter ranges) is configured in the source file — see [Section 10](#10-in-source-configuration).
 
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--length N` | `12` | Grid side length. Produces (N+1)² nodes and 2×N×(N+1) muscles. |
-| `--heartbeat_time N` | `1000` | Timesteps between simulated heartbeats. |
-| `--firing_node N` | `5` | Node ID that receives the initial electrical signal. |
-| `--perf_check true/false` | `true` | Print elapsed wall-clock time at the end of the run. |
+| Flag                      | Default | Description |
+|---------------------------|---------|-------------|
+| `--length N`              | `12`    | Grid side length. Produces (N+1)² nodes and 2×N×(N+1) muscles. |
+| `--heartbeat_time N`      | `1000`  | Timesteps between simulated heartbeats. |
+| `--firing_node N`         | `5`     | Node ID that receives the initial electrical signal. |
+| `--perf_check true/false` | `true`  | Print elapsed wall-clock time at the end of the run. |
 
 ---
 
@@ -524,23 +524,23 @@ Runs the Monte Carlo simulation over many randomized trials and saves the result
 
 Loads a saved Monte Carlo results file and replays a single trial, with optional live animation in the terminal.
 
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--results_path PATH` | *(required)* | Path to the saved JSON results file. |
-| `--trial N` | — | Replay trial number N (1-indexed, as stored in the results file). |
-| `--hit_index N` | `0` | Replay the Nth record in the results (0 = first). Ignored when `--trial` is provided. |
-| `--source` | `trial_results` | Which section of the JSON to read from: `trial_results` or `hits`. |
-| `--max_timesteps N` | — | Stop replay after N timesteps even if reentry has not been detected. |
-| `--infinite true/false` | `false` | Keep simulating after reentry is detected. Useful for watching the self-sustaining loop continue. |
-| `--graphics true/false` | `true` | Show the animated grid in the terminal. |
-| `--sim_time F` | `0.05` | Seconds to pause between timesteps when graphics are on. |
-| `--log true/false` | `false` | Print a running event log below the animated grid. |
-| `--debugging true/false` | `false` | Print full internal state for every muscle at every timestep. Very verbose. |
-| `--perf_check true/false` | `true` | Print elapsed wall-clock time at the end. |
-| `--heartbeat_time N` | `1000` | Timesteps between simulated heartbeats. |
-| `--length N` | `12` | Grid side length. Must match the grid used when the results were generated. |
-| `--firing_node N` | `5` | Node ID that starts the initial electrical signal. |
-| `--max_log_lines N` | `25` | Maximum number of lines shown in the event log panel. |
+| Flag                      | Default         | Description |
+|---------------------------|-----------------|-------------|
+| `--results_path PATH`     | *(required)*    | Path to the saved JSON results file. |
+| `--trial N`               | —               | Replay trial number N (1-indexed, as stored in the results file). |
+| `--hit_index N`           | `0`             | Replay the Nth record in the results (0 = first). Ignored when `--trial` is provided. |
+| `--source`                | `trial_results` | Which section of the JSON to read from: `trial_results` or `hits`. |
+| `--max_timesteps N`       | —               | Stop replay after N timesteps even if reentry has not been detected. |
+| `--infinite true/false`   | `false`         | Keep simulating after reentry is detected. Useful for watching the self-sustaining loop continue. |
+| `--graphics true/false`   | `true`          | Show the animated grid in the terminal. |
+| `--sim_time F`            | `0.05`          | Seconds to pause between timesteps when graphics are on. |
+| `--log true/false`        | `false`         | Print a running event log below the animated grid. |
+| `--debugging true/false`  | `false`         | Print full internal state for every muscle at every timestep. Very verbose. |
+| `--perf_check true/false` | `true`          | Print elapsed wall-clock time at the end. |
+| `--heartbeat_time N`      | `1000`          | Timesteps between simulated heartbeats. |
+| `--length N`              | `12`            | Grid side length. Must match the grid used when the results were generated. |
+| `--firing_node N`         | `5`             | Node ID that starts the initial electrical signal. |
+| `--max_log_lines N`       | `25`            | Maximum number of lines shown in the event log panel. |
 
 ---
 
@@ -548,10 +548,10 @@ Loads a saved Monte Carlo results file and replays a single trial, with optional
 
 Prints a labeled static diagram of the node/muscle grid to the terminal. Use this to identify muscle and node IDs before configuring a Monte Carlo experiment.
 
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--length N` | `12` | Grid side length to display. Use a small number (5–6) to fit comfortably on one screen. |
-| `--plain` | off | Strip ANSI color codes from the output, useful for copying into a document. |
+| Flag         | Default | Description |
+|--------------|---------|-------------|
+| `--length N` | `12`    | Grid side length to display. Use a small number (5–6) to fit comfortably on one screen. |
+| `--plain`    | off     | Strip ANSI color codes from the output, useful for copying into a document. |
 
 ---
 
@@ -559,10 +559,10 @@ Prints a labeled static diagram of the node/muscle grid to the terminal. Use thi
 
 Generates an interactive parallel coordinates plot and opens it in the browser. Each line represents one trial, colored red (reentry) or blue (no reentry). Click and drag on any axis to filter by parameter range.
 
-| Argument | Default | Description |
-|----------|---------|-------------|
-| *(positional path)* | `results/monte_carlo_micro_hits.json` | Path to the results JSON file. |
-| `--out PATH` | `results/results.html` | Output path for the generated HTML file. |
+| Argument             | Default                               | Description |
+|----------------------|---------------------------------------|-------------|
+| *(positional path)*  | `results/monte_carlo_micro_hits.json` | Path to the results JSON file. |
+| `--out PATH`         | `results/results.html`                | Output path for the generated HTML file. |
 
 ---
 
@@ -570,10 +570,10 @@ Generates an interactive parallel coordinates plot and opens it in the browser. 
 
 Trains a Random Forest classifier on the trial results and opens a 4-panel interactive plot: feature importances, ROC curve, reentry probability scatter, and predicted probability distribution. Requires `scikit-learn`.
 
-| Argument | Default | Description |
-|----------|---------|-------------|
-| *(positional path)* | `results/monte_carlo_micro_hits.json` | Path to the results JSON file. |
-| `--out PATH` | `results/results_rf.html` | Output path for the generated HTML file. |
+| Argument             | Default                               | Description |
+|----------------------|---------------------------------------|-------------|
+| *(positional path)*  | `results/monte_carlo_micro_hits.json` | Path to the results JSON file. |
+| `--out PATH`         | `results/results_rf.html`             | Output path for the generated HTML file. |
 
 ---
 
@@ -581,11 +581,11 @@ Trains a Random Forest classifier on the trial results and opens a 4-panel inter
 
 Loads trial results into an Optuna study and launches the Optuna web dashboard at `http://localhost:<port>`. Press `Ctrl+C` to stop the server. Requires `optuna` and `optuna-dashboard`.
 
-| Argument | Default | Description |
-|----------|---------|-------------|
-| *(positional path)* | `results/monte_carlo_micro_hits.json` | Path to the results JSON file. |
-| `--port N` | `8080` | Port to run the dashboard server on. |
-| `--study-name NAME` | `microreentry` | Name assigned to the Optuna study. |
+| Argument             | Default                               | Description |
+|----------------------|---------------------------------------|-------------|
+| *(positional path)*  | `results/monte_carlo_micro_hits.json` | Path to the results JSON file. |
+| `--port N`           | `8080`                                | Port to run the dashboard server on. |
+| `--study-name NAME`  | `microreentry`                        | Name assigned to the Optuna study. |
 
 ---
 
