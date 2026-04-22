@@ -8,11 +8,11 @@ SEED_ARG="${1:-}"
 
 if [[ -n "$SEED_ARG" ]]; then
 	echo "Running Monte Carlo with fixed seed: $SEED_ARG"
-	MC_SEED="$SEED_ARG" python3 script.py --graphics false --infinite false --sim_time 0
+	MC_SEED="$SEED_ARG" python3 src/script.py
 else
 	echo "Running Monte Carlo with random seed"
-	python3 script.py --graphics false --infinite false --sim_time 0
+	python3 src/script.py
 fi
 
 echo "Monte Carlo run complete. Results saved to results/monte_carlo_micro_hits.json"
-echo "Use ./replay.sh to replay a saved trial"
+echo "Use ./scripts/replay.sh to replay a saved trial"

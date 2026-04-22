@@ -127,7 +127,7 @@ pip install pandas plotly
 From the project folder, run:
 
 ```bash
-python3 view_mesh.py
+python3 src/view_mesh.py
 ```
 
 If you see a colored grid of numbers printed in your terminal, the setup is working correctly. You may need to zoom out the terminal to view the grid properly.
@@ -139,7 +139,7 @@ If you see a colored grid of numbers printed in your terminal, the setup is work
 Before running simulations, it helps to see the grid and understand which muscle and node IDs are where.
 
 ```bash
-python3 view_mesh.py
+python3 src/view_mesh.py
 ```
 
 This prints the full 12×12 grid with every node ID and muscle ID labeled in place. Nodes appear as numbers at grid intersections; horizontal muscles appear as `---ID---` labels between nodes; vertical muscles appear as `|` bars with their ID below.
@@ -153,7 +153,7 @@ This prints the full 12×12 grid with every node ID and muscle ID labeled in pla
 
 **Example — small 5×5 grid, no color:**
 ```bash
-python3 view_mesh.py --length 5 --plain
+python3 src/view_mesh.py --length 5 --plain
 ```
 
 Use this view to identify the IDs of the muscles you want to target in the Monte Carlo experiments.
@@ -162,10 +162,10 @@ Use this view to identify the IDs of the muscles you want to target in the Monte
 
 ## 5. Running the Monte Carlo Simulation
 
-The main simulation is run via `script.py`. The easiest way is through the provided shell script:
+The main simulation is run via `src/script.py`. The easiest way is through the provided shell script:
 
 ```bash
-./run.sh
+./scripts/run.sh
 ```
 
 This runs 1,000 trials with graphics and display turned off (for speed), and saves results to `results/monte_carlo_micro_hits.json`.
@@ -175,17 +175,17 @@ This runs 1,000 trials with graphics and display turned off (for speed), and sav
 If you want the exact same random trials every time — useful for reproducing a specific result for a paper or presentation — pass an integer seed:
 
 ```bash
-./run.sh 42
+./scripts/run.sh 42
 ```
 
 Any integer will work as the seed. The same seed always produces the same sequence of random trials.
 
 ### Running Directly with Python
 
-You can also run `script.py` directly and pass options:
+You can also run `src/script.py` directly and pass options:
 
 ```bash
-python3 script.py
+python3 src/script.py
 ```
 
 **Common options:**
@@ -229,7 +229,7 @@ After running the Monte Carlo simulation, you can replay any individual trial fr
 The easiest way is the interactive shell script:
 
 ```bash
-./replay.sh
+./scripts/replay.sh
 ```
 
 This will:
@@ -247,17 +247,17 @@ Enter trial number: 45
 You can also control the animation speed by passing a delay in seconds:
 
 ```bash
-./replay.sh 0.05    # 50ms between each timestep (default)
-./replay.sh 0.2     # 200ms — slower and easier to watch
-./replay.sh 0.01    # 10ms — very fast
+./scripts/replay.sh 0.05    # 50ms between each timestep (default)
+./scripts/replay.sh 0.2     # 200ms — slower and easier to watch
+./scripts/replay.sh 0.01    # 10ms — very fast
 ```
 
 ### Replaying Directly with Python
 
-For more control, use `replay_monte_carlo_trial.py` directly:
+For more control, use `src/replay_monte_carlo_trial.py` directly:
 
 ```bash
-python3 replay_monte_carlo_trial.py \
+python3 src/replay_monte_carlo_trial.py \
     --results_path results/monte_carlo_micro_hits.json \
     --trial 45 \
     --graphics true \
@@ -279,7 +279,7 @@ python3 replay_monte_carlo_trial.py \
 
 **Example — replay the first reentry hit, no animation, just the final result:**
 ```bash
-python3 replay_monte_carlo_trial.py \
+python3 src/replay_monte_carlo_trial.py \
     --results_path results/monte_carlo_micro_hits.json \
     --hit_index 0 \
     --graphics false
@@ -474,7 +474,7 @@ These variables are defined at the top of the `main()` function in `script.py`:
 
 **Trials:** 100 trials runs in seconds; 10,000 trials takes a few minutes.
 
-**Target muscles:** Use `python3 view_mesh.py` to see the grid and identify muscle IDs. Muscles near the center of the grid are typically more interesting for reentry studies.
+**Target muscles:** Use `python3 src/view_mesh.py` to see the grid and identify muscle IDs. Muscles near the center of the grid are typically more interesting for reentry studies.
 
 **Ranges:** The range values are multipliers of each muscle's default RP or CT. A single range in the list applies to all target muscles. To assign individual ranges, provide one entry per muscle — the list length must match `mc_target_muscle_ids`:
 
@@ -507,7 +507,7 @@ default_rp: float = 300      # refractory period in timesteps
 
 ## 11. Script Argument Reference
 
-### `script.py`
+### `src/script.py`
 
 Runs the Monte Carlo simulation over many randomized trials and saves the results to a JSON file. The Monte Carlo setup (target muscles, trial count, parameter ranges) is configured in the source file — see [Section 10](#10-in-source-configuration).
 
@@ -520,7 +520,7 @@ Runs the Monte Carlo simulation over many randomized trials and saves the result
 
 ---
 
-### `replay_monte_carlo_trial.py`
+### `src/replay_monte_carlo_trial.py`
 
 Loads a saved Monte Carlo results file and replays a single trial, with optional live animation in the terminal.
 
@@ -544,7 +544,7 @@ Loads a saved Monte Carlo results file and replays a single trial, with optional
 
 ---
 
-### `view_mesh.py`
+### `src/view_mesh.py`
 
 Prints a labeled static diagram of the node/muscle grid to the terminal. Use this to identify muscle and node IDs before configuring a Monte Carlo experiment.
 
@@ -599,27 +599,33 @@ Prints a plain-text summary of the Monte Carlo results to the terminal. Takes no
 
 ```
 microreentry/
-├── script.py                    Main entry point — configures and runs Monte Carlo experiments.
-├── config.py                    Defines all simulation parameters and parses CLI flags.
-├── simulation.py                Core simulation loop (timestep updates, reentry detection).
-├── monte_carlo.py               Monte Carlo runner — randomizes parameters over many trials.
-├── topology.py                  Builds the node/muscle grid from a given side length.
-├── nodes.py                     Node class — receives signals and triggers connected muscles.
-├── muscles.py                   Muscle class — conducts signals and enforces refractory period.
-├── display.py                   Terminal display — renders the animated grid during replay.
-├── drawing.py                   Low-level ANSI terminal drawing functions and color codes.
-├── view_mesh.py                 Standalone tool to print the grid with all node/muscle IDs labeled.
-├── replay_monte_carlo_trial.py  Replay one trial from saved results, with optional animation.
-├── run.sh                       Shell script — easiest way to run the Monte Carlo simulation.
-├── replay.sh                    Shell script — interactive prompt to replay a saved trial.
+├── README.md
+├── src/
+│   ├── script.py                    Main entry point — configures and runs Monte Carlo experiments.
+│   ├── replay_monte_carlo_trial.py  Replay one trial from saved results, with optional animation.
+│   ├── view_mesh.py                 Print the grid with all node/muscle IDs labeled.
+│   ├── config.py                    Defines all simulation parameters and parses CLI flags.
+│   ├── simulation.py                Core simulation loop (timestep updates, reentry detection).
+│   ├── monte_carlo.py               Monte Carlo runner — randomizes parameters over many trials.
+│   ├── topology.py                  Builds the node/muscle grid from a given side length.
+│   ├── nodes.py                     Node class — receives signals and triggers connected muscles.
+│   ├── muscles.py                   Muscle class — conducts signals and enforces refractory period.
+│   ├── display.py                   Terminal display — renders the animated grid during replay.
+│   └── drawing.py                   Low-level ANSI terminal drawing functions and color codes.
+├── scripts/
+│   ├── run.sh                       Run the Monte Carlo simulation (wraps src/script.py).
+│   └── replay.sh                    Interactive prompt to replay a saved trial.
+├── results/
+│   ├── monte_carlo_micro_hits.json  Saved Monte Carlo results (created by scripts/run.sh).
+│   ├── results.html                 Interactive visualization (created by visualize.py).
+│   ├── visualize.py                 Generates the interactive parallel coordinates plot.
+│   ├── rf_visualize.py              Alternate visualization (random forest feature importance).
+│   ├── view_optuna.py               Launches the Optuna dashboard for exploring results.
+│   └── print_results.py             Prints a plain-text summary of results to the terminal.
 ├── tests/
-│   └── test_simulation.py       Unit tests for core simulation logic.
-└── results/
-    ├── monte_carlo_micro_hits.json   Saved Monte Carlo results (created by run.sh / script.py).
-    ├── results.html                  Interactive visualization (created by visualize.py).
-    ├── visualize.py                  Generates the interactive parallel coordinates plot.
-    ├── print_results.py              Prints a plain-text summary of results to the terminal.
-    └── rf_visualize.py               Alternate visualization (random forest feature importance).
+│   ├── conftest.py                  Adds src/ to sys.path for test imports.
+│   └── test_simulation.py           Unit tests for core simulation logic.
+└── presentation/                    Slides, figures, and video from the research presentation.
 ```
 
 ---
@@ -630,8 +636,8 @@ For someone running this for the first time:
 
 1. **Install Python 3.10+** if not already installed.
 2. **Install visualization dependencies:** `pip install pandas plotly`
-3. **Preview the grid:** `python3 view_mesh.py --length 5` to see a small example.
-4. **Run the simulation:** `./run.sh` (or `python3 script.py --graphics false`)
+3. **Preview the grid:** `python3 src/view_mesh.py --length 5` to see a small example.
+4. **Run the simulation:** `./scripts/run.sh` (or `python3 src/script.py --graphics false`)
 5. **View the results interactively:** `python3 results/visualize.py` — a browser window will open.
 6. **Print a text summary:** `python3 results/print_results.py`
-7. **Watch a reentry trial:** `./replay.sh` and enter a trial number from the reentry list.
+7. **Watch a reentry trial:** `./scripts/replay.sh` and enter a trial number from the reentry list.

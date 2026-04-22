@@ -26,7 +26,7 @@ while true; do
 	echo "Please enter a whole number between 1 and ${TOTAL_TRIALS}."
 done
 
-python3 replay_monte_carlo_trial.py \
+python3 src/replay_monte_carlo_trial.py \
 	--results_path "$RESULTS_PATH" \
 	--trial "$TRIAL_NUMBER" \
 	--source trial_results \
