@@ -224,7 +224,7 @@ Monte Carlo summary:
 
 ## 6. Replaying a Specific Trial
 
-After running the Monte Carlo simulation, you can replay any individual trial from the saved results — including watching it animate in the terminal.
+After running the Monte Carlo simulation, you can replay any individual trial from the saved results, including watching it animate in the terminal.
 
 The easiest way is the interactive shell script:
 
