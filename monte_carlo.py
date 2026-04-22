@@ -15,7 +15,6 @@ Example:
     )
 """
 
-import copy
 import json
 import random
 from pathlib import Path
@@ -115,7 +114,7 @@ def run_muscle_rp_monte_carlo(
     micro_hits = []
     trial_results = []
 
-    sim_cfg = copy.deepcopy(cfg)
+    sim_cfg = cfg
     sim_cfg.graphics = False
     sim_cfg.log = False
     sim_cfg.debugging = False
@@ -129,14 +128,21 @@ def run_muscle_rp_monte_carlo(
 
     if base_nodes is not None and base_muscles is not None:
         validate_muscles(base_muscles)
+        # Snapshot baseline RP/CT once (post-blocking, pre-trial randomization).
+        baseline_rp = [m.refractory_period for m in base_muscles]
+        baseline_ct = [m.conduction_time for m in base_muscles]
 
     progress_interval = 1000
 
     for trial in range(1, trials + 1):
         if base_nodes is not None and base_muscles is not None:
-            # Each trial starts from the same caller-provided baseline state.
-            nodes = copy.deepcopy(base_nodes)
-            muscles = copy.deepcopy(base_muscles)
+            # Reset in-place instead of deepcopy — topology never changes between trials.
+            for node in base_nodes:
+                node.reset()
+            for i, muscle in enumerate(base_muscles):
+                muscle.reset(rp=baseline_rp[i], ct=baseline_ct[i])
+            nodes = base_nodes
+            muscles = base_muscles
         else:
             nodes, muscles = build_sheet(sim_cfg.length)
             validate_muscles(muscles)

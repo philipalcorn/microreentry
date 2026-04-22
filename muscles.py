@@ -88,6 +88,8 @@ class Muscle:
                 for nid in self.connected_node_ids:
                     if nid != self.activated_from_id:
                         fired_node_ids.append(nid)
+                        if 0 <= nid < len(ext_nodes):
+                            ext_nodes[nid].activated_from_id = self.id
 
             # reset after conduction + refractory
             #total_duration = self.conduction_time + self.refractory_period
@@ -118,6 +120,16 @@ class Muscle:
             return True
 
         return False
+
+    def reset(self, rp=None, ct=None):
+        self.timer = 0
+        self.active = False
+        self.has_fired = 0
+        self.activated_from_id = 0
+        if rp is not None:
+            self.refractory_period = rp
+        if ct is not None:
+            self.conduction_time = ct
 
     def connect_node(self, id):
         if len(self.connected_node_ids) > 1:

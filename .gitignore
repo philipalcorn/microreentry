@@ -12,8 +12,15 @@ env/
 
 # Results / output
 results/*.json
+results/**/*.json
 results/*.csv
+results/**/*.csv
 results/*.pkl
+results/*.db
+results/*.mp4
+results/*.png
+results/*.jpg
+results/*.jpeg
 
 # IDE / editor
 .vscode/

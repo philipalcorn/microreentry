@@ -3,7 +3,7 @@
 set -euo pipefail
 
 RESULTS_PATH="results/monte_carlo_micro_hits.json"
-SIM_TIME="${1:-0.02}"
+SIM_TIME="${1:-0.03}"
 
 read -r TOTAL_TRIALS REENTRY_TRIALS < <(python3 - <<'PY'
 import json

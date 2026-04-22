@@ -21,10 +21,18 @@ def main(argv=None):
     Muscle.set_multiplier_for_ids(muscles, cfg.blocked_ids, rp=cfg.slow_rp, ct=cfg.slow_ct)
 
     # Monte Carlo setup with explicit per-target ranges.
+    mc_trials = 1000
+
+
+    # This array has muscle 211 as the dominant factor in whether or not a micro reentry happens
     mc_target_muscle_ids = [51, 63, 64, 199, 211, 212]
 
-    mc_trials = 50 
+    #Random stuff we're trying 
+    # Tree ish with a box
+    #mc_target_muscle_ids = [199, 212, 225, 237, 238,239, 251, 51, 52, 63,64, 75, 76, 87, 88]
+
     mc_rp_ranges = [
+        #(0.005, 0.5),  # muscle 51
         (0.01, 0.1),  # muscle 51
         #(0.1,0.1),  # muscle 63
         #(0.1,0.1),  # muscle 64
@@ -34,7 +42,7 @@ def main(argv=None):
     ]
     #TODO: Need to change the randomizaiton to assign same CT to all muscles
     mc_ct_ranges = [
-        (3, 4),  # muscle 51
+        (3.0, 4.0),  # muscle 51
         #(4,4),  # muscle 63
         #(4,4),  # muscle 64
         #(4,4),  # muscle 199
