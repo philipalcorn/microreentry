@@ -6,14 +6,8 @@ from config import Config
 from topology import build_sheet
 from monte_carlo import run_muscle_rp_monte_carlo, display_monte_carlo_summary
 
-# Configuration is managed by Config dataclass:
-# sim_time, graphics, infinite, perf_check, heartbeat_time,
-# default_ct, default_rp, slow_ct, slow_rp, blocked_ids,
-# log, debugging, firing_node, length, max_log_lines.
-
-
 def main(argv=None):
-    cfg = Config.from_args(argv)
+    cfg = Config.from_monte_carlo_args(argv)
 
     nodes, muscles = build_sheet(cfg.length)
 

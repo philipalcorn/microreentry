@@ -1,6 +1,6 @@
 # Micro-Reentry Cardiac Simulation
 
-A computational model of **micro-reentry** — a type of cardiac arrhythmia where an electrical signal gets trapped in a small loop in heart tissue and keeps cycling, rather than dying out normally. This project simulates that behavior on a grid of cardiac cells and uses **Monte Carlo** experiments to discover which tissue parameters make reentry more or less likely.
+A computational model of **micro-reentry**, a type of cardiac arrhythmia where an electrical signal gets trapped in a small loop in heart tissue and keeps cycling, rather than dying out normally. This project simulates that behavior on a grid of cardiac cells and uses **Monte Carlo** experiments to discover which tissue parameters make reentry more or less likely.
 
 ---
 
@@ -15,8 +15,8 @@ A computational model of **micro-reentry** — a type of cardiac arrhythmia wher
 7. [Visualizing Results](#7-visualizing-results)
 8. [Printing a Text Summary of Results](#8-printing-a-text-summary-of-results)
 9. [Understanding the Output and Results File](#9-understanding-the-output-and-results-file)
-10. [Configuration Parameters Reference](#10-configuration-parameters-reference)
-11. [Modifying the Simulation](#11-modifying-the-simulation)
+10. [In-Source Configuration](#10-in-source-configuration)
+11. [Script Argument Reference](#11-script-argument-reference)
 12. [File Overview](#12-file-overview)
 
 ---
@@ -24,15 +24,15 @@ A computational model of **micro-reentry** — a type of cardiac arrhythmia wher
 ## 1. Background: What is Micro-Reentry?
 
 In a healthy heart, an electrical signal originates at the sinoatrial (SA) node and spreads outward through cardiac muscle tissue. Each muscle fiber:
-1. **Activates** (fires) when the electrical wave reaches it.
-2. **Conducts** the signal forward to neighboring tissue.
-3. Enters a **refractory period** — a short window where it cannot fire again, no matter how much it is stimulated.
+1. **Activates** (or, fires) when the electrical wave reaches it. In this model, this activation happens at the nodes between muscles.
+2. **Conducts** the signal forward to neighboring tissue. In this model, this conduction process takes a time period CT, or conduction time.
+3. Enters a **refractory period** — a short window where it cannot fire again, no matter how much it is stimulated. Dictated by RP in this model.
 
-The refractory period is critical: it prevents the signal from doubling back on itself. Once the wave has passed, the tissue it came from is still refractory, so the signal can only travel *forward*.
+The refractory period is critical: it prevents the signal from refiring the same muscle. Once the wave has passed, the tissue it came from is still refractory, so the signal can only travel *forward*. This is a fully enforced requirement of this simulation.
 
-**Micro-reentry** occurs when the refractory period of a small region is abnormally short. If tissue recovers (becomes excitable again) before the surrounding wavefront has moved far enough away, the signal can loop back and re-excite the same tissue. The result is a self-sustaining loop of electrical activity — an arrhythmia.
+**Micro-reentry** occurs when the refractory period of a small region is abnormally short. If tissue recovers before the surrounding wavefront has moved far enough away, the signal can loop back and re-excite the same tissue. The result is a self-sustaining loop of electrical activity. This is a direct cause of arrhythmias.
 
-This simulation models that process on a two-dimensional grid, and uses statistical experiments to determine the range of tissue parameters (specifically, refractory period length and conduction speed) that leads to reentry.
+This simulation models this process on a non dimensional grid, and enables the use of statistical experiments to determine the range of tissue parameters (specifically, refractory period length and conduction speed) that leads to reentry for a given network setup. Non-dimenionality is preferred as any arrangement of muscles can be studied without regard to the physical position, so long as conduction time and refractory period are known.
 
 ---
 
@@ -40,11 +40,12 @@ This simulation models that process on a two-dimensional grid, and uses statisti
 
 ### The Grid
 
-The cardiac tissue is represented as a rectangular **grid of nodes and muscles**:
+The cardiac tissue is represented as a network of nodes and muscles:
 
-- A **node** represents a junction point in the tissue — think of it as the location where multiple fibers meet.
-- A **muscle** (a fiber segment) connects exactly two adjacent nodes and carries the electrical signal between them.
+- A **node** represents a junction point in the tissue. It is essentiall a location where multiple fibers meet.
+- A **muscle**, or **edge**  connects exactly two adjacent nodes and carries the electrical signal between them. Note that a node can have multiple edges connected.
 
+The default construction is a network that can be visualized as a 2D grid:
 For a grid of side length `L`, there are:
 - **(L+1) × (L+1) nodes**, numbered left-to-right, top-to-bottom starting at 0.
 - **2 × L × (L+1) muscles**: horizontal muscles first (numbered row by row), then vertical muscles.
@@ -52,17 +53,20 @@ For a grid of side length `L`, there are:
 The default grid has `L = 12`, giving **169 nodes** and **312 muscles**.
 
 ```
-Node 0 ---muscle 0--- Node 1 ---muscle 1--- Node 2
+Node 0 ---muscle 0--- Node 1 ---muscle 1--- Node 2 ........
   |                     |                     |
-muscle 156           muscle 157            muscle 158
+muscle 156           muscle 157            muscle 158 ..... 
   |                     |                     |
-Node 13 --muscle 12-- Node 14 --muscle 13-- Node 15
+Node 13 --muscle 12-- Node 14 --muscle 13-- Node 15 .......
+  ...                   ...                  ...
+  ...                   ...                  ...
+  ...                   ...                  ...
   ...
 ```
 
 ### Nodes
 
-A node is **passive** — it receives a signal and immediately triggers all connected muscles that are not currently in their refractory period (and does not fire back toward the muscle that activated it).
+Nodes are passive. They receive a signal and immediately attempt to fire all connected muscles. Muscles that are currently in their refractory period are not able to be fired. Ideally, there would be some sort of signal strength / intensity threshold, but that is not included in this model. 
 
 ### Muscles
 
@@ -70,28 +74,28 @@ A muscle has two key timing parameters:
 
 | Parameter | Symbol | Default | Meaning |
 |-----------|--------|---------|---------|
-| **Conduction Time** | CT | ~3.33 timesteps | How long the electrical signal takes to travel through the muscle. The signal arrives at the far node only after this many timesteps. |
-| **Refractory Period** | RP | 300 timesteps | How long the muscle stays inactive after firing. It cannot be re-activated until this period expires. |
+| **Conduction Time** | CT | ~3.33 ms | How long the electrical signal takes to travel through the muscle. The signal arrives at the far node only after this many timesteps. |
+| **Refractory Period** | RP | 300 ms | How long the muscle stays inactive after firing. It cannot be re-activated until this period expires. |
 
-The essential physiological constraint is: **RP must be greater than CT**. If a muscle's refractory period were shorter than its conduction time, it would reset before the signal even finished passing through — which is physically impossible.
+The physiological constraint, mentioned earlier, is that **RP must be greater than CT**. If a muscle's refractory period were shorter than its conduction time, it would reset before the signal even finished passing through, which is physically impossible, and would cause a microreentry by continuously refiring itself.
 
 ### Simulation Steps
 
-Each **timestep**, the simulation:
-1. Advances every active muscle's internal timer by 1.
-2. When a muscle's timer reaches its conduction time, it fires its far-end node.
-3. Each newly fired node in turn activates all its connected muscles that are ready (not refractory).
+Each timestep, which represents 1ms, the simulation:
+1. Advances every active muscle's internal timer by 1 (ms).
+2. When a muscle's timer reaches its conduction time, it fires the opposite node.
+3. Each newly fired node in turn activates all the other connected muscles that are not refractory.
 4. When a muscle's timer reaches its refractory period, it resets to idle and becomes ready to fire again.
 
-The simulation starts by firing **node 5** (top-left region) and then fires it again every `heartbeat_time` timesteps to represent the regular heartbeat.
+The simulation starts by firing **node 5** by default, and then fires it again every `heartbeat_time` timesteps to represent the regular heartbeat. Note that during monte carlo simulations, the test for reentry is cut off before the beat node has a chance to refire. This will be discussed in further detail later.
 
 ### Micro-Reentry Detection
 
-**Reentry is detected** when more than **50% of all nodes** have fired more than once, and this happens *before* the next scheduled heartbeat. This indicates the signal is looping rather than dying out.
+Reentry is detected when more than **50% of all nodes** have fired more than once before the next heartbeat. (Less than 50% resulted in microreentries being detected that ended up fizzling out, and not causing an actual reentry.)
 
 ### Monte Carlo Experiments
 
-Rather than testing a single configuration, the simulation runs **1,000 independent trials**. In each trial, a selected set of muscles has their refractory period and conduction time randomized within a specified range, and the simulation runs to see whether reentry occurs. After all trials, the results show the statistical relationship between tissue parameters and reentry probability.
+Rather than testing a single configuration, the simulation is cable of running any number of independent trials. In each trial, a user-defined set of muscles has their refractory period and conduction time randomized within a specified range, and the simulation runs to see whether reentry occurs. After all trials, the results show the statistical relationship between tissue parameters and reentry probability.
 
 ---
 
@@ -99,7 +103,7 @@ Rather than testing a single configuration, the simulation runs **1,000 independ
 
 ### Prerequisites
 
-You need **Python 3.10 or newer**. To check your version, open a terminal and type:
+Python 3.10 or newer is required. To check your version, open a terminal and type:
 
 ```bash
 python3 --version
@@ -117,22 +121,8 @@ Install them by running:
 pip install pandas plotly
 ```
 
-If you are using the included virtual environment (`venv/`), activate it first:
 
-```bash
-# On Mac/Linux:
-source venv/bin/activate
-
-# On Windows:
-venv\Scripts\activate
-```
-
-Then install:
-```bash
-pip install pandas plotly
-```
-
-### Confirming Everything Works
+### Testing environment setup
 
 From the project folder, run:
 
@@ -140,7 +130,7 @@ From the project folder, run:
 python3 view_mesh.py
 ```
 
-If you see a colored grid of numbers printed in your terminal, the setup is working correctly.
+If you see a colored grid of numbers printed in your terminal, the setup is working correctly. You may need to zoom out the terminal to view the grid properly.
 
 ---
 
@@ -208,23 +198,16 @@ python3 script.py
 | `--heartbeat_time 1000` | `1000` | `--heartbeat_time 500` | Timesteps between simulated heartbeats. |
 | `--firing_node 5` | `5` | `--firing_node 0` | Which node starts the initial signal. |
 
-**Example — run with the animated display (slower):**
-```bash
-python3 script.py --graphics true --sim_time 0.05
-```
-
-**Example — run headlessly (fastest):**
-```bash
-python3 script.py --graphics false --sim_time 0
-```
 
 ### What You Will See
 
-While running (with `--graphics false`), the script prints progress every 1,000 trials:
+The script prints progress every 1,000 trials:
 ```
 Monte Carlo seed: 2847392918
 Monte Carlo progress: 1000/1000
-
+```
+And finishes with a results summary:
+```
 Monte Carlo summary:
  - Target muscle ids: [51, 63, 64, 199, 211, 212]
  - RP ranges: [(0.01, 0.1)]
@@ -235,21 +218,7 @@ Monte Carlo summary:
  - Saved results: results/monte_carlo_micro_hits.json
 ```
 
-The results are automatically saved to `results/monte_carlo_micro_hits.json`.
-
-### The Animated Display (When Graphics Are On)
-
-When you run with `--graphics true`, the terminal shows a live view of the grid as the simulation progresses. The color coding is:
-
-| Color | Meaning |
-|-------|---------|
-| **Green** | Muscle is idle and ready to fire |
-| **Purple** | Muscle is actively conducting (signal is traveling through it) |
-| **Red** | Muscle is in its refractory period (recently fired, temporarily inactive) |
-| **Cyan** | Node has never been fired |
-| **Dark/gray** | Node has been fired at least once |
-
-If the display detects reentry, it prints `MICRO DETECTED` at the top of the screen.
+(The results are automatically saved to `results/monte_carlo_micro_hits.json`, but this can be changed with a command line option)
 
 ---
 
@@ -265,7 +234,7 @@ The easiest way is the interactive shell script:
 
 This will:
 1. Load the saved results and show you which trials produced reentry.
-2. Ask you to type a trial number.
+2. Ask you to type a trial number. (Non- reentry runs can also be selected)
 3. Run that trial with a live animated display.
 
 **Example session:**
@@ -320,7 +289,7 @@ python3 replay_monte_carlo_trial.py \
 
 ## 7. Visualizing Results
 
-Once you have a results file, you can generate an **interactive parallel coordinates plot** that opens automatically in your web browser.
+Once you have a results file, you can generate an interactive parallel coordinates plot that opens automatically in your web browser.
 
 ```bash
 python3 results/visualize.py
@@ -348,11 +317,52 @@ Lines are colored **blue** for trials with no reentry and **red** for trials whe
 
 This allows you to visually identify the threshold: e.g., "reentry only occurs when the RP multiplier for muscle 211 is below 0.04."
 
+### Other Visualization Scripts
+
+Two additional scripts in the `results/` folder offer alternative views of the same data.
+
+**Random Forest analysis (`results/rf_visualize.py`)**
+
+Trains a Random Forest classifier on the trial results and opens a 4-panel interactive plot in your browser:
+
+- **Feature Importances** — which muscles' RP or CT values had the most influence on whether reentry occurred.
+- **ROC Curve** — model accuracy measured by 5-fold cross-validation (AUC closer to 1.0 means the parameters reliably predict reentry).
+- **Reentry Probability Scatter** — a scatter of the two most important features, colored by predicted reentry probability.
+- **Predicted Probability Distribution** — histogram comparing the model's confidence scores for reentry vs. non-reentry trials.
+
+```bash
+python3 results/rf_visualize.py
+```
+
+Requires `scikit-learn` in addition to `pandas` and `plotly` (`pip install scikit-learn`). Accepts the same optional arguments as `visualize.py`:
+
+```bash
+python3 results/rf_visualize.py results/monte_carlo_micro_hits.json --out results/results_rf.html
+```
+
+**Optuna dashboard (`results/view_optuna.py`)**
+
+Loads the trial results into an [Optuna](https://optuna.org) study and launches the Optuna web dashboard, a richer interactive UI for exploring parameter relationships:
+
+```bash
+python3 results/view_optuna.py
+```
+
+Then open `http://localhost:8080` in your browser. Press `Ctrl+C` to stop the server.
+
+Requires `optuna` and `optuna-dashboard` (`pip install optuna optuna-dashboard`). You can change the port if 8080 is already in use:
+
+```bash
+python3 results/view_optuna.py --port 8081
+```
+
+*Note that the random forest trainer and the optuna dashboard are not reccomended for larger monte carlo sets.*
+
 ---
 
 ## 8. Printing a Text Summary of Results
 
-For a plain-text summary without opening a browser:
+For a plain-text summary without opening a browser: 
 
 ```bash
 python3 results/print_results.py
@@ -384,7 +394,7 @@ Reentry trials: [7, 45, 83, ...]
     45  ...                                                yes
 ```
 
-Each row shows the effective parameter multipliers used for that trial, and whether reentry was detected.
+Each row shows the effective parameter multipliers used for that trial, and whether reentry was detected. This script is particularly useful to tranfer parameters to other simulations or models.
 
 ---
 
@@ -445,88 +455,29 @@ The results are saved as a JSON file at `results/monte_carlo_micro_hits.json`. J
 
 ---
 
-## 10. Configuration Parameters Reference
+## 10. In-Source Configuration
 
-All parameters can be passed as command-line flags to `script.py` or `replay_monte_carlo_trial.py`.
+Some parameters cannot be changed via command-line flags and must be set by editing the source files directly.
 
-### Simulation Timing
+### `script.py` — Monte Carlo Setup
 
-| Parameter | Default | Flag | Description |
-|-----------|---------|------|-------------|
-| `default_rp` | `300` | — | Default refractory period for all muscles (timesteps). Not a CLI flag; change in `config.py`. |
-| `default_ct` | `3.33` | — | Default conduction time for all muscles (timesteps). Not a CLI flag; change in `config.py`. |
-| `heartbeat_time` | `1000` | `--heartbeat_time` | Number of timesteps between simulated heartbeats. |
-| `sim_time` | `0.05` | `--sim_time` | Seconds to sleep between timesteps (only relevant when graphics are on). |
+These variables are defined at the top of the `main()` function in `script.py`:
 
-### Grid
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `mc_trials` | `1000` | Number of independent trials to run. More trials give more statistically reliable results but take longer to complete. |
+| `mc_target_muscle_ids` | `[51, 63, 64, 199, 211, 212]` | IDs of the muscles whose RP and CT are randomized each trial. All other muscles keep their default values. Use `view_mesh.py` to identify muscle IDs. |
+| `mc_rp_ranges` | `[(0.01, 0.1)]` | RP multiplier range(s) sampled uniformly each trial. A single entry applies to all target muscles; provide one entry per muscle to assign individual ranges. |
+| `mc_ct_ranges` | `[(3.0, 4.0)]` | CT multiplier range(s). Follows the same single-or-per-muscle broadcasting rule as `mc_rp_ranges`. |
+| `mc_max_timesteps` | `500` | Timestep cap per trial. Trials that have not produced reentry by this point are recorded as non-reentry. |
+| `mc_save_path` | `"results/monte_carlo_micro_hits.json"` | File path where results are written after the run. |
 
-| Parameter | Default | Flag | Description |
-|-----------|---------|------|-------------|
-| `length` | `12` | `--length` | Side length of the grid. Produces (length+1)² nodes and 2×length×(length+1) muscles. |
-| `firing_node` | `5` | `--firing_node` | Node ID that receives the initial electrical signal. |
+**Trials:** 100 trials runs in seconds; 10,000 trials takes a few minutes.
 
-### Display and Logging
+**Target muscles:** Use `python3 view_mesh.py` to see the grid and identify muscle IDs. Muscles near the center of the grid are typically more interesting for reentry studies.
 
-| Parameter | Default | Flag | Description |
-|-----------|---------|------|-------------|
-| `graphics` | `true` | `--graphics` | Show the animated grid. Set to `false` for maximum speed. |
-| `log` | `false` | `--log` | Print a running event log below the grid. |
-| `debugging` | `false` | `--debugging` | Print detailed internal state for every muscle at every timestep. Very verbose. |
-| `infinite` | `false` | `--infinite` | Keep simulating after reentry is detected instead of stopping. Useful for replaying and watching the loop. |
-| `perf_check` | `true` | `--perf_check` | Print elapsed wall-clock time at the end. |
+**Ranges:** The range values are multipliers of each muscle's default RP or CT. A single range in the list applies to all target muscles. To assign individual ranges, provide one entry per muscle — the list length must match `mc_target_muscle_ids`:
 
-### Monte Carlo Parameters (in `script.py`)
-
-These are set directly in the `script.py` source file rather than as command-line flags:
-
-| Variable | Default | Meaning |
-|----------|---------|---------|
-| `mc_trials` | `1000` | Number of independent trials to run. |
-| `mc_target_muscle_ids` | `[51, 63, 64, 199, 211, 212]` | Muscle IDs whose parameters are randomized each trial. All others stay at their default values. |
-| `mc_rp_ranges` | `[(0.01, 0.1)]` | Range of RP multipliers to sample uniformly. `0.1` means the RP is set to 10% of the default. A single range applies to all target muscles. |
-| `mc_ct_ranges` | `[(3.0, 4.0)]` | Range of CT multipliers. `4.0` means CT is set to 4× the default. |
-| `mc_max_timesteps` | `500` | Maximum timesteps per trial. If reentry is not detected by this point the trial is recorded as no-reentry. |
-| `mc_save_path` | `"results/monte_carlo_micro_hits.json"` | Where to save the results. |
-
----
-
-## 11. Modifying the Simulation
-
-All changes are made by editing `script.py` in any text editor. The relevant section is at the top of the `main()` function.
-
-### Changing the Number of Trials
-
-Find this line and change `1000` to any number:
-```python
-mc_trials = 1000
-```
-
-More trials give more statistically reliable results but take longer to run. 100 trials runs in seconds; 10,000 trials takes a few minutes.
-
-### Changing Which Muscles Are Targeted
-
-```python
-mc_target_muscle_ids = [51, 63, 64, 199, 211, 212]
-```
-
-Use `python3 view_mesh.py` to see the grid and identify muscle IDs. Muscles near the center of the grid are typically more interesting for reentry studies.
-
-### Changing the Parameter Ranges
-
-```python
-mc_rp_ranges = [
-    (0.01, 0.1),  # applied to all target muscles
-]
-mc_ct_ranges = [
-    (3.0, 4.0),   # applied to all target muscles
-]
-```
-
-- The numbers are **multipliers** of each muscle's default values.
-- A single range in the list is automatically applied to all target muscles.
-- To give each muscle its own range, provide one range per muscle (the list length must match `mc_target_muscle_ids`).
-
-**Example — different ranges per muscle:**
 ```python
 mc_target_muscle_ids = [51, 211]
 mc_rp_ranges = [
@@ -534,17 +485,113 @@ mc_rp_ranges = [
     (0.05, 0.15),   # muscle 211: moderately short RP
 ]
 mc_ct_ranges = [
-    (3.0, 4.0),     # applies to both muscles (single range)
+    (3.0, 4.0),     # single range — applies to both muscles
 ]
 ```
 
-### Changing the Default Tissue Properties
+### `config.py` — Global Tissue Defaults
 
-Open `config.py` and change the values on these lines:
+These values define the baseline tissue properties for all muscles before any per-trial randomization is applied:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `default_ct` | `10/3` (~3.33) | Default conduction time for all muscles, in timesteps (ms). |
+| `default_rp` | `300` | Default refractory period for all muscles, in timesteps (ms). Must be greater than `default_ct`. |
+
 ```python
 default_ct: float = 10/3     # conduction time in timesteps
 default_rp: float = 300      # refractory period in timesteps
 ```
+
+---
+
+## 11. Script Argument Reference
+
+### `script.py`
+
+Runs the Monte Carlo simulation over many randomized trials and saves the results to a JSON file. The Monte Carlo setup (target muscles, trial count, parameter ranges) is configured in the source file — see [Section 10](#10-in-source-configuration).
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--length N` | `12` | Grid side length. Produces (N+1)² nodes and 2×N×(N+1) muscles. |
+| `--heartbeat_time N` | `1000` | Timesteps between simulated heartbeats. |
+| `--firing_node N` | `5` | Node ID that receives the initial electrical signal. |
+| `--perf_check true/false` | `true` | Print elapsed wall-clock time at the end of the run. |
+
+---
+
+### `replay_monte_carlo_trial.py`
+
+Loads a saved Monte Carlo results file and replays a single trial, with optional live animation in the terminal.
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--results_path PATH` | *(required)* | Path to the saved JSON results file. |
+| `--trial N` | — | Replay trial number N (1-indexed, as stored in the results file). |
+| `--hit_index N` | `0` | Replay the Nth record in the results (0 = first). Ignored when `--trial` is provided. |
+| `--source` | `trial_results` | Which section of the JSON to read from: `trial_results` or `hits`. |
+| `--max_timesteps N` | — | Stop replay after N timesteps even if reentry has not been detected. |
+| `--infinite true/false` | `false` | Keep simulating after reentry is detected. Useful for watching the self-sustaining loop continue. |
+| `--graphics true/false` | `true` | Show the animated grid in the terminal. |
+| `--sim_time F` | `0.05` | Seconds to pause between timesteps when graphics are on. |
+| `--log true/false` | `false` | Print a running event log below the animated grid. |
+| `--debugging true/false` | `false` | Print full internal state for every muscle at every timestep. Very verbose. |
+| `--perf_check true/false` | `true` | Print elapsed wall-clock time at the end. |
+| `--heartbeat_time N` | `1000` | Timesteps between simulated heartbeats. |
+| `--length N` | `12` | Grid side length. Must match the grid used when the results were generated. |
+| `--firing_node N` | `5` | Node ID that starts the initial electrical signal. |
+| `--max_log_lines N` | `25` | Maximum number of lines shown in the event log panel. |
+
+---
+
+### `view_mesh.py`
+
+Prints a labeled static diagram of the node/muscle grid to the terminal. Use this to identify muscle and node IDs before configuring a Monte Carlo experiment.
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--length N` | `12` | Grid side length to display. Use a small number (5–6) to fit comfortably on one screen. |
+| `--plain` | off | Strip ANSI color codes from the output, useful for copying into a document. |
+
+---
+
+### `results/visualize.py`
+
+Generates an interactive parallel coordinates plot and opens it in the browser. Each line represents one trial, colored red (reentry) or blue (no reentry). Click and drag on any axis to filter by parameter range.
+
+| Argument | Default | Description |
+|----------|---------|-------------|
+| *(positional path)* | `results/monte_carlo_micro_hits.json` | Path to the results JSON file. |
+| `--out PATH` | `results/results.html` | Output path for the generated HTML file. |
+
+---
+
+### `results/rf_visualize.py`
+
+Trains a Random Forest classifier on the trial results and opens a 4-panel interactive plot: feature importances, ROC curve, reentry probability scatter, and predicted probability distribution. Requires `scikit-learn`.
+
+| Argument | Default | Description |
+|----------|---------|-------------|
+| *(positional path)* | `results/monte_carlo_micro_hits.json` | Path to the results JSON file. |
+| `--out PATH` | `results/results_rf.html` | Output path for the generated HTML file. |
+
+---
+
+### `results/view_optuna.py`
+
+Loads trial results into an Optuna study and launches the Optuna web dashboard at `http://localhost:<port>`. Press `Ctrl+C` to stop the server. Requires `optuna` and `optuna-dashboard`.
+
+| Argument | Default | Description |
+|----------|---------|-------------|
+| *(positional path)* | `results/monte_carlo_micro_hits.json` | Path to the results JSON file. |
+| `--port N` | `8080` | Port to run the dashboard server on. |
+| `--study-name NAME` | `microreentry` | Name assigned to the Optuna study. |
+
+---
+
+### `results/print_results.py`
+
+Prints a plain-text summary of the Monte Carlo results to the terminal. Takes no arguments; reads from `results/monte_carlo_micro_hits.json`.
 
 ---
 
